@@ -2,8 +2,7 @@ rdchord
 =======
 
 PostgreSQL extension using CHORD and rdkit
-<br>
-Requirements:
+<h3>Requirements</h3>
 <ol>
 <li>rdkit installed with python scripting
 <li>postgresql 9 installed with plpython
