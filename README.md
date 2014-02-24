@@ -8,5 +8,5 @@ PostgreSQL extension using CHORD and rdkit
 <li>postgresql 9 installed with plpython
 <li>superuser privileges for installation
 </ol>
-The INSTALL file contains iformation about how to install rdchord
+The INSTALL file contains information about how to install rdchord
 once the above requirements are met.
