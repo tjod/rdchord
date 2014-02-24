@@ -1,0 +1,44 @@
+In order to install rdchord, take the following steps.
+You should either be logged in as root, or precede each of the commands with sudo.
+
+$ make
+$ make install
+
+In order to use rdchord and the rdkit.* functions, you must have the rdkit/python scripting language installed.
+There is documentation about how to do this at http://rdkit.org/
+There may also be synatpics packages (Ubuntu/Debian) or rpm packages (Redhat/CentOS/Fedora/SuSE) to make rdkit installation easier.
+
+Then install rdchord:
+$ python setup.py install
+
+Add the following lines  to the postgresql environemnt to postgresql aware of the location of rdkit
+This environment file may be in another location on your servers, depending the
+version of postgres, the type of operating system or the linux distribution you are using.
+Futher, the values for PYTHONPATH and LD_LIBRARY_PATH will sutely be different,
+depending on where you installed rdkit.
+For example:
+$ cat >> /etc/postgresql/9.2/main/environment
+PYTHONPATH =  '/home/tj/RDKit/rdkit-code'
+LD_LIBRARY_PATH = '/home/tj/RDKit/rdkit-code/lib'
+^D
+
+Next, install the rdkit.* SQL functions into a (new) database (e.g. rdchord)
+You must also have the plpythonu language available in your installed postgres.
+There are synaptics and rpm packages for this,
+or if you compile postgres yourself, use the --with-python option.
+$ bash makedb
+will create a database called rdchord and install the rdkit.* SQL functions there.
+You can install the functions into an existing database (your-db).
+$ bash installdb your-db
+
+Now, you should be able to connect to rdchord or your-db and do something like:
+$ psql your-db
+ select rdkit.cansmiles(rdkit.rdmol('c1ccccc1C(=O)NC'));
+and get the result
+  rdchord=#  select rdkit.cansmiles(rdkit.rdmol('c1ccccc1C(=O)NC'));
+     cansmiles    
+ -----------------
+  CNC(=O)c1ccccc1
+ (1 row)
+
+

@@ -1,0 +1,620 @@
+-- Copyright TJ O'Donnell 2009, 2010
+---------------------------------------------------------------------------------------------------
+-- plpy.error used for smiles, since valid can be used handily to prevent errors
+-- plpy.warning used for smarts and files, since there is no valid_smarts or valid_file function
+---------------------------------------------------------------------------------------------------
+Drop Schema _SCHEMA_ Cascade;
+Create Schema _SCHEMA_;
+Comment On Schema _SCHEMA_ Is 'based on python functions from RDKit';
+Grant Usage On Schema _SCHEMA_ to public;
+--Create Language plpythonu;
+
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.version() Returns Text As $EOPY$
+from rdkit import rdBase
+return rdBase.rdkitVersion
+$EOPY$ Language plpythonu Immutable;
+Comment On FUNCTION _SCHEMA_.version()
+Is 'version of rdkit';
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smarts(sma text) Returns SetOf Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+return (rc.smarts(sma))
+$EOPY$ Language plpythonu Immutable;
+Comment On FUNCTION _SCHEMA_.smarts(text)
+Is 'return table of smarts in buffer';
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles(smi text) Returns SetOf Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+return (rc.smiles(smi))
+$EOPY$ Language plpythonu Immutable;
+Comment On FUNCTION _SCHEMA_.smiles(text)
+Is 'return table of smiles in buffer';
+
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.valid(smi Text) Returns Boolean As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+if rc.parse_smi(smi):
+  return True
+else:
+  return False
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.valid(Text)
+Is 'return true if input smiles is valid';
+
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.num_atoms(rdmol Bytea) Returns Integer As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+  return mol.GetNumAtoms()
+else:
+  return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.num_atoms(Bytea)
+Is 'return number of atoms in input binary rdmol';
+
+---------------------------------------------------------------------------------------------------
+-- much slower to parse smiles than binary mol
+--Create Or Replace Function _SCHEMA_.num_atoms(smi Text) Returns Integer As $EOPY$
+--import rdchord
+--rc=rdchord.rdchord(GD)
+--mol = rc.parse_smi(smi)
+--if mol:
+--  return mol.GetNumAtoms()
+--else:
+--  return None
+--EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+--Comment On FUNCTION _SCHEMA_.num_atoms(Bytea)
+--Is 'return number of atoms in input binary rdmol';
+--
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.cansmiles(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.cansmiles(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.cansmiles(Bytea)
+Is 'return canonical smiles of input binary rdmol';
+
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.isosmiles(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.isosmiles(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.isosmiles(Bytea)
+Is 'return canonical isomeric smiles of input binary rdmol';
+
+---------------------------------------------------------------------------------------------------
+--Create Or Replace Function _SCHEMA_.isosmiles(smi Text) Returns Text As $EOSQL$
+-- Select _SCHEMA_.isosmiles(_SCHEMA_.smiles_to_rdmol(smi));
+--$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+--Comment On FUNCTION _SCHEMA_.isosmiles(Text)
+--Is 'return canonical isomeric smiles of input smiles';
+--
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.keksmiles(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.keksmiles(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.keksmiles(Bytea)
+Is 'return kekule smiles of input binary rdmol';
+
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.impsmiles(rdmol Bytea, keepiso Boolean) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.impsmiles(mol, keepiso)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.impsmiles(Bytea, Boolean)
+Is 'return implicit-H smiles of input smiles, with isomeric atoms optionally preserved';
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.impsmiles(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.impsmiles(mol, False)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.impsmiles(Bytea)
+Is 'return implicit-H smiles of input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_symbols(rdmol Bytea) Returns Text[] As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return [atom.GetSymbol() for atom in mol.GetAtoms()]
+else:
+ plpy.error("Error in input smiles "+smi)
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_symbols(Bytea)
+Is 'return arrary of atomic symbols of input binary rdmol';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_bond_set(rdmol Bytea) Returns SetOf Integer[] As $EOPY$
+# Since plpython does not support arrays of dimension higher than one,
+# this function returns rows of 1-D arrays to make smiles_to_bonds possible.
+# This function is not intended for general use, but there is no harm whatsoever in using it.
+import rdchord
+from rdkit.Chem import BondType
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ if mol.GetNumBonds() < 1: return None
+ bonds = []
+ for b in mol.GetBonds():
+  type = b.GetBondType()
+  if type == BondType.AROMATIC:
+   bo = 4
+  elif type == BondType.SINGLE:
+   bo = 1
+  elif type == BondType.DOUBLE:
+   bo = 2
+  elif type == BondType.TRIPLE:
+   bo = 3
+  bonds.append((1+b.GetBeginAtomIdx(), 1+b.GetEndAtomIdx(), bo))
+ return (bonds)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_bond_set(Bytea)
+Is 'return table of bonds (atom,atom,bond order) of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_bonds(rdmol Bytea) Returns Integer[] As $EOSQL$
+Declare
+  bond Integer[]; 
+  bonds Integer[];
+Begin
+  For bond In Select _SCHEMA_.smiles_to_bond_set(rdmol) Loop
+    bonds = bonds || array[bond];
+  End Loop;
+  Return bonds;
+End
+$EOSQL$ Language plpgsql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_bonds(Bytea)
+Is 'return array of bonds (atom,atom,bond order) of input binary rdmol';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.molfile(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.molfile(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile(Bytea)
+Is 'return molfile converted from input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.molfile_to_rdmol(mb Text) Returns Bytea As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.parse_molblock(mb)
+if mol:
+ return rc.to_binary(mol)
+else:
+ plpy.warning("Error in input molblock "+mb[0:50])
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile_to_rdmol(Text)
+Is 'return binary rdmol from input molblock';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text) Returns Bytea As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.parse_smi(smi)
+if mol:
+ return rc.to_binary(mol)
+else:
+ plpy.warning("Error in input smiles")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text)
+Is 'return binary rdmol from input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_molfile(smi Text) Returns Text As $EOPY$
+ Select _SCHEMA_.molfile(_SCHEMA_.smiles_to_rdmol($1));
+$EOPY$ Language Sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_molfile(Text)
+Is 'return molfile from input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.molfile_to_smiles(mb Text) Returns Text As $EOPY$
+ Select _SCHEMA_.isosmiles(_SCHEMA_.molfile_to_rdmol($1));
+$EOPY$ Language Sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile_to_smiles(Text)
+Is 'return smiles from input molfile';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.rdmol(smi Text) Returns Bytea As $EOPY$
+ Select _SCHEMA_.smiles_to_rdmol($1);
+$EOPY$ Language Sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.rdmol(Text)
+Is 'return binary rdmol from input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.matches(rdmol Bytea, sma Text) Returns Boolean As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ pat = rc.parse_sma(sma)
+ if pat:
+  return rc.matches(mol,pat)
+ else:
+  plpy.warning("Error in input smarts"+sma)
+  return None
+
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.matches(Bytea, Text)
+Is 'return true if input binary rdmol in arg#1 matches input smarts in arg#2';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.count_matches(rdmol Bytea, sma Text) Returns Integer As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ pat = rc.parse_sma(sma)
+ if pat:
+  matches = rc.get_matches(mol,pat)
+  if matches:
+   return len(matches)
+  else:
+   return 0
+ else:
+  plpy.warning("Error in input smarts "+sma)
+  return None
+
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.count_matches(Bytea, Text)
+Is 'return number of times input binary rdmol in arg#1 matches input smarts in arg#2';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.list_match(rdmol Bytea, sma Text, imatch Integer, istart Integer) Returns Integer[] As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+
+ pat = rc.parse_sma(sma)
+ if pat:
+  matches = rc.get_matches(mol,pat)
+  if matches:
+   i = 0
+   for m in matches:
+    i += 1
+    amatch = [(a+istart) for a in m]
+    if i == imatch: return amatch
+   return amatch
+  else:
+   return None 
+
+ else:
+  plpy.warning("Error in input smarts "+sma)
+  return None
+
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.list_match(Bytea, Text, Integer, Integer)
+Is 'return array of atoms of input binary rdmol in arg#1 matching input smarts in arg#2. arg#3 indicates which match. arg#4 indicates index of first atom, typically 1 or 0';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.list_matches(rdmol Bytea, sma Text, imatch Integer, istart Integer) Returns Integer[] As $EOSQL$
+Declare
+  matches Integer[];
+Begin
+  If imatch < 1 Then
+    For i In 1.._SCHEMA_.count_matches(rdmol, sma) Loop
+      matches = matches || array[_SCHEMA_.list_match(rdmol, sma, i, istart)];
+    End Loop;
+    Return matches;
+  Else
+    Return _SCHEMA_.list_match(rdmol, sma, imatch, istart);
+  End If;
+End
+$EOSQL$ Language plpgsql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.list_matches(Bytea, Text, Integer, Integer)
+Is 'return array(s) of atoms of input binary rdmol in arg#1 matching input smarts in arg#2. arg#3 indicates which match. arg#4 indicates index of first atom, typically 1 or 0';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.list_matches(Bytea, Text) Returns Integer[] As $EOSQL$
+ Select _SCHEMA_.list_matches($1, $2, 1, 0);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.list_matches(Bytea, Text)
+Is 'return array of atoms of input bindary rdmol in arg#1 in first match of input smarts in arg#2. same as list_matches($1, $2, 1, 0)';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.list_matches(Bytea, Text, Integer) Returns Integer[] As $EOSQL$
+ Select _SCHEMA_.list_matches($1, $2, $3, 0);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.list_matches(Bytea, Text, Integer)
+Is 'return array(s) of atoms of input bindary rdmol in arg#1 matching input smarts in arg#2. arg#3 indicates which match. same as list_matches($1, $2, $3, 0)';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fp(rdmol Bytea, fpsize Integer) Returns Bit As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+  fp = rc.fingerprint(mol,fpsize=fpsize,bitsperhash=2)
+  if fp:
+    return "B"+fp.ToBitString()
+  else:
+    return None
+
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fp(Bytea, Integer)
+Is 'return flexibly-sized fingerprint of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fp(rdmol Bytea) Returns Bit As $EOSQL$
+ Select _SCHEMA_.fp(rdmol,1024);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fp(Bytea)
+Is 'return default-sized fingerprint of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fpbits(rdmol Bytea, fpsize Integer) Returns Integer[] As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+  fp = rc.fingerprint(mol,fpsize=fpsize,bitsperhash=2)
+  if fp:
+    bitlist = list()
+    i=0;
+    for bit in fp:
+      i += 1
+      if bit: bitlist.append(i)
+    #return '{' + str(bitlist)[1:-1] + '}'
+    return bitlist
+  else:
+    return None
+
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fpbits(Bytea, Integer)
+Is 'return flexibly-sized fingerprint bits of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fpbits(rdmol Bytea) Returns Integer[] As $EOSQL$
+ Select _SCHEMA_.fpbits(rdmol,1024);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fpbits(Bytea)
+Is 'return default-sized fingerprint bits of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fp(smi Text, fpsize Integer) Returns Bit As $EOSQL$
+ Select _SCHEMA_.fp(_SCHEMA_.smiles_to_rdmol($1), $2);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fp(Text,Integer)
+Is 'return flexibly-sized fingerprint of input smiles';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fp(smi Text) Returns Bit As $EOSQL$
+ Select _SCHEMA_.fp($1, 1024);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fp(Text)
+Is 'return default-sized fingerprint of input smiles';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fpbits(smi Text, fpsize Integer) Returns Integer[] As $EOSQL$
+ Select _SCHEMA_.fpbits(_SCHEMA_.smiles_to_rdmol($1), $2);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fpbits(Text, Integer)
+Is 'return flexibly-sized fingerprint bits of input smiles';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.fpbits(smi Text) Returns Integer[] As $EOSQL$
+ Select _SCHEMA_.fpbits($1,1024);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fpbits(Text)
+Is 'return default-sized fingerprint bits of input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.maccskeys(rdmol Bytea) Returns Integer[] As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+  fp = rc.maccskeys(mol)
+  if fp:
+    bitlist = list()
+    i=0;
+    for bit in fp:
+      i += 1
+      if bit: bitlist.append(i)
+    #return '{' + str(bitlist)[1:-1] + '}'
+    return bitlist
+  else:
+    return None
+
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.fpbits(Bytea)
+Is 'return fingerprint bits of input binary rdmol';
+
+-----------------------------------------------------------------------------------------------------
+Create or Replace FUNCTION _SCHEMA_.contains(Bit, Bit) Returns Boolean As $EOSQL$
+ Select $2 = ($1 & $2);
+$EOSQL$ Language SQL Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.contains(bit, bit)
+ Is 'return true if first bit string contain all the bits of second';
+
+-----------------------------------------------------------------------------------------------------
+---- get all info from molfiles in one record for insert into a table
+---- see rdkit.sql for an example of using _SCHEMA_.molfile_mol() to
+---- insert into a table
+----Drop Type rdkit.mol Cascade;
+--Create Type _SCHEMA_.mol As (name Text, cansmiles Text, coords Numeric[][], atoms Integer[]);
+--Comment On Type _SCHEMA_.mol
+--Is 'composite data type used by molfile_mol containing canonical smiles, atom coordinates in canonical orer and array mapping canonical atom order to input atom order';
+-----------------------------------------------------------------------------------------------------
+--Create Or Replace Function _SCHEMA_.molfile_mol(molfil Text) Returns _SCHEMA_.mol As $EOPY$
+--import rdkit
+--import rdchord
+--rc=rdchord.rdchord(GD)
+--mol = rc.parse_format(molfil,"sdf")
+--if mol:
+-- title = mol.GetTitle()
+-- if mol.NumAtoms() < 1:
+--  return title,None,None,None
+-- mol.SetTitle("")
+-- isosmi = rc.writestring(mol,"can")
+-- if len(isosmi) < 1: isosmi = None
+--
+--# for OpenBabel 2.1; even so not fully correct
+--#cansmi = isosmi.replace('[C@H]','C')
+--#cansmi = cansmi.replace('[C@@H]','C')
+--#cansmi = cansmi.replace('[C@]','C')
+--#cansmi = cansmi.replace('[C@@]','C')
+--#cansmi = cansmi.replace('/','')
+--#cansmi = cansmi.replace('\\','')
+--#pat = rdkit.OBSmartsPattern()
+--#if pat.Init(cansmi):
+--# if pat.Match(mol):
+--#  canmap = (pat.GetUMapList())[0]
+--# else:
+--#  raise ValueError("Error matching canmap: "+cansmi+" "+isosmi)
+--#else:
+--# raise ValueError("Error init canmap: "+cansmi+" "+isosmi)
+--# for OpenBabel 2.2
+-- d = mol.GetData("Canonical Atom Order")
+-- p = [rdkit.toPairData(d)]
+-- try:
+--  canmap = map(int, p[0].GetValue().split())
+-- except:
+--  canmap = range(1, mol.NumAtoms()+1)
+--
+-- return title, isosmi, \
+--  "{" + ",".join(["{"+str(a.x())+","+str(a.y())+","+str(a.z())+"}" \
+--    for a in [mol.GetAtom(i) for i in canmap]]) + "}" , \
+--  "{" + ",".join([str(i) for i in canmap]) + "}"
+--
+--plpy.warning("Error parsing molfile "+molfil)
+--return None
+--$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+--Comment On FUNCTION _SCHEMA_.molfile_mol(Text)
+--Is 'return mol data type containing canonical smiles, coords, canonical atom-ordering of input molfile';
+--
+-----------------------------------------------------------------------------------------------------
+----Drop Type _SCHEMA_.named_property Cascade;
+Create Type _SCHEMA_.named_property As (name Text, value Text, tagorder Integer);
+Comment On Type _SCHEMA_.named_property
+Is 'composite data type used in molfile_properties containing name/value pairs for each molfile tag';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.molfile_properties(mb Text) Returns SetOf _SCHEMA_.named_property As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.parse_molblock(mb)
+if mol:
+ pairdata = list()
+ tagorder = 1
+ for p in mol.GetPropNames():
+  mol.GetProp(p)
+  pairdata.append((p, mol.GetProp(p), tagorder))
+  tagorder += 1
+ return pairdata
+else:
+ plpy.warning("Error parsing molfile")
+ return [None]
+
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile_properties(Text)
+Is 'return all named_property data type from input molfile containing name/value pairs';
+
+-----------------------------------------------------------------------------------------------------
+----Drop Function _SCHEMA_.molfile_property(Text,Text);
+Create Or Replace Function _SCHEMA_.molfile_property(mb Text, pname Text) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+#mol = rc.from_binary(rdmol)
+mol = rc.parse_molblock(mb)
+if mol and mol.HasProp(pname):
+ return mol.GetProp(pname)
+else:
+ plpy.warning("Error parsing molfile")
+ return None
+
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile_property(Text,Text)
+Is 'return value of named property from input molfile containing name/value pairs';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.graph(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.graph(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.graph(Bytea)
+Is 'return graph of input smiles, i.e. atom symbols and connectivity with all bond orders set to one, followed by H atom count.  useful for comparing tautomers';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.inchi(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.inchi(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.inchi(Bytea)
+Is 'return inchi of input binary rdmol';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.inchikey(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.inchikey(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
+Is 'return inchikey of input binary rdmol';

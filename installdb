@@ -1,0 +1,35 @@
+#! /bin/bash
+
+DB=$1
+if [ -z ${DB} ] ; then
+  echo "You must give the name of the database you wish to use"
+  echo "useage: install db_name"
+  exit
+fi
+PSQL='/usr/lib/postgresql/9.2/bin/psql'
+CLANG='/usr/lib/postgresql/9.2/bin/createlang'
+
+sudo -u postgres $CLANG plpythonu $DB
+sudo -u postgres $PSQL $DB <varbit.sql 
+# possbible change here to use schema other than rdkit
+sed s/_SCHEMA_/rdkit/g rdkit.sql.in | sudo -u postgres $PSQL $DB
+
+# not yet implemented in rdkit
+#sudo -u postgres $PSQL $DB <fragments.sql
+
+# these are identical to openbabel version,
+# install would simply replace these with identical verions
+$PSQL $DB <bits.sql 
+
+# these conflict with openbabel public functions
+# so install these only into db that does not have
+# openbabel also installed
+# or remove them and replace with these, as you wish
+$PSQL $DB <public166keys.sql 
+$PSQL $DB <amw.sql 
+$PSQL $DB <tpsa.sql
+$PSQL $DB <glogp.sql
+
+# these are identical to openbabel version,
+# install would simply replace these with identical verions
+$PSQL $DB <similarity.sql 
