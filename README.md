@@ -4,6 +4,7 @@ rdchord
 PostgreSQL extension using CHORD and rdkit
 <h3>Requirements</h3>
 <ol>
+<li>linux.  windows and osx not yet tested.
 <li>rdkit installed with python scripting
 <li>postgresql 9 installed with plpython
 <li>superuser privileges for installation
