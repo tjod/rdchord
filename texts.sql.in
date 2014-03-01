@@ -1,0 +1,36 @@
+-- wrappers to allow input smiles as text in place of rdmol
+
+Create OR Replace FUNCTION _OCSCHEMA_.amw(Text)
+ Returns Numeric AS '
+Select _OCSCHEMA_.amw(_SCHEMA_.smiles_to_rdmol($1));
+' LANGUAGE sql IMMUTABLE;
+Comment on FUNCTION _OCSCHEMA_.amw(Text)
+ Is 'average molecular weight of smiles';
+
+Create OR Replace FUNCTION _OCSCHEMA_.public166keys(Text)
+ Returns Integer[] AS '
+Select _OCSCHEMA_.public166keys(_SCHEMA_.smiles_to_rdmol($1));
+' LANGUAGE sql IMMUTABLE;
+Comment on FUNCTION _OCSCHEMA_.public166keys(Text)
+ Is 'average molecular weight of smiles';
+
+Create OR Replace FUNCTION _OCSCHEMA_.glogp(Text)
+ Returns Numeric AS '
+Select _OCSCHEMA_.glogp(_SCHEMA_.smiles_to_rdmol($1));
+' LANGUAGE sql IMMUTABLE;
+Comment on FUNCTION _OCSCHEMA_.glogp(Text)
+ Is 'average molecular weight of smiles';
+
+Create OR Replace FUNCTION _OCSCHEMA_.tpsa(Text)
+ Returns Numeric AS '
+Select _OCSCHEMA_.tpsa(_SCHEMA_.smiles_to_rdmol($1));
+' LANGUAGE sql IMMUTABLE;
+Comment on FUNCTION _OCSCHEMA_.tpsa(Text)
+ Is 'average molecular weight of smiles';
+
+Create OR Replace FUNCTION _OCSCHEMA_.public166fp(Text)
+ Returns Bit(166) AS '
+Select _OCSCHEMA_.public166fp(_SCHEMA_.smiles_to_rdmol($1));
+' LANGUAGE sql IMMUTABLE;
+Comment on FUNCTION _OCSCHEMA_.public166fp(Text)
+ Is 'average molecular weight of smiles';

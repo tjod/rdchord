@@ -1,0 +1,55 @@
+-- aggregate functions
+
+Create AGGREGATE _OCSCHEMA_.andsum (
+    BASETYPE = bit,
+    SFUNC = bitand,
+    STYPE = bit
+);
+
+Create AGGREGATE _OCSCHEMA_.orsum (
+    BASETYPE = bit,
+    SFUNC = bitor,
+    STYPE = bit
+);
+
+-- bit operator functions
+
+Create or Replace FUNCTION _OCSCHEMA_.contains(bit, bit)
+ Returns boolean AS '
+Select $2 = ($1 & $2);
+' LANGUAGE sql IMMUTABLE;
+Comment On FUNCTION _OCSCHEMA_.contains(bit, bit)
+ Is 'sql equivalent of bit_contains for fixed lengths';
+
+Create or Replace FUNCTION _OCSCHEMA_.bit_density(bit)
+ Returns real AS '
+Select (_OCSCHEMA_.nbits_set($1)::real / length($1))::real;
+' LANGUAGE sql IMMUTABLE;
+Comment On FUNCTION _OCSCHEMA_.bit_density(bit)
+ Is 'useful for analysis of fingerprints';
+
+Create or Replace FUNCTION _OCSCHEMA_.hex(bit)
+ Returns text AS $EOSQL$
+Select 'X''' || substr(encode(bit_send($1),'hex'),9) ||
+  '''::bit(' || length($1) || ')';
+$EOSQL$ LANGUAGE sql IMMUTABLE;
+Comment On FUNCTION _OCSCHEMA_.hex(bit)
+ Is 'hexadecimal representation of bit string';
+
+Create or Replace FUNCTION _OCSCHEMA_.bit_array(b bit)
+ Returns Integer[] AS $EOSQL$
+Declare
+ i Integer;
+ bit_array Integer[];
+Begin
+ For i in 0..length(b)-1 Loop
+  If get_bit(b,i) = 1 Then
+    bit_array = bit_array || i+1;
+  End If;
+ End Loop;
+ Return bit_array;
+End;
+$EOSQL$ LANGUAGE plpgsql IMMUTABLE Returns Null On Null Input;
+Comment On FUNCTION _OCSCHEMA_.bit_array(bit)
+ Is 'array of bits that are set in input bitstring';
+

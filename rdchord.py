@@ -104,7 +104,7 @@ class rdchord:
     return MolToSmiles(m, isomericSmiles=True)
 
   def impsmiles(self,m,keepiso=False):
-    """make isomeric smiles from molecule"""
+    """make implicit smiles from molecule"""
     import re
     #smi = MolToSmiles(m, canonical=True, isomericSmiles=True)
     smi = MolToSmiles(m, canonical=False, isomericSmiles=keepiso)

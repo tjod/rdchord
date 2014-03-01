@@ -1,4 +1,10 @@
-#! /bin/bash
+#! /bin/bash -v
+
+VERSION="/usr/lib/postgresql/9.2/"
+PORT=5432
+
+PSQL="$VERSION/bin/psql -p $PORT"
+CREATELANG="$VERSION/bin/createlang -p $PORT"
 
 DB=$1
 if [ -z ${DB} ] ; then
@@ -6,30 +12,21 @@ if [ -z ${DB} ] ; then
   echo "useage: install db_name"
   exit
 fi
-PSQL='/usr/lib/postgresql/9.2/bin/psql'
-CLANG='/usr/lib/postgresql/9.2/bin/createlang'
+RD_SCHEMA=rd
+OC_SCHEMA=oc
 
-sudo -u postgres $CLANG plpythonu $DB
-sudo -u postgres $PSQL $DB <varbit.sql 
-# possbible change here to use schema other than rdkit
-sed s/_SCHEMA_/rdkit/g rdkit.sql.in | sudo -u postgres $PSQL $DB
-
-# not yet implemented in rdkit
-#sudo -u postgres $PSQL $DB <fragments.sql
-
-# these are identical to openbabel version,
-# install would simply replace these with identical verions
-$PSQL $DB <bits.sql 
-
-# these conflict with openbabel public functions
-# so install these only into db that does not have
-# openbabel also installed
-# or remove them and replace with these, as you wish
-$PSQL $DB <public166keys.sql 
-$PSQL $DB <amw.sql 
-$PSQL $DB <tpsa.sql
-$PSQL $DB <glogp.sql
-
-# these are identical to openbabel version,
-# install would simply replace these with identical verions
-$PSQL $DB <similarity.sql 
+$PSQL $DB <<EOSQL
+Create Schema $OC_SCHEMA;
+Comment On Schema $OC_SCHEMA Is 'function for general use with openbabel or rdkit';
+Grant Usage On Schema $OC_SCHEMA to public;
+EOSQL
+sudo -u postgres $CREATELANG plpythonu $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < varbit.sql.in | sudo -u postgres $PSQL $DB
+sed s/_SCHEMA_/$RD_SCHEMA/g < rdkit.sql.in | sudo -u postgres $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < bits.sql.in | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < public166keys.sql.in | sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < similarity.sql.in |  sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < amw.sql.in |  sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < tpsa.sql.in |  sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < glogp.sql.in |  sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
+sed s/_OCSCHEMA_/$OC_SCHEMA/g < texts.sql.in |  sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
