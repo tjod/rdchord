@@ -652,3 +652,29 @@ return MCSResult.smarts
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[])
 Is 'return maximal common substructure of input binary rdmols';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.align(probe Bytea, ref Bytea, prbatoms Integer[], refatoms Integer[])
+  Returns Float As $EOPY$
+import rdchord
+from rdkit.Chem import rdMolAlign
+rc=rdchord.rdchord(GD)
+prbMol = rc.from_binary(probe)
+refMol = rc.from_binary(ref)
+amap = [ [prbatoms[i], refatoms[i]] for i in range(0,len(refatoms)) ]
+try:
+  rmsd = rdMolAlign.AlignMol(prbMol, refMol, atomMap=amap)
+  return rmsd
+except:
+  return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.align(Bytea, Bytea, Integer[], Integer[])
+Is 'return RMDS overlap of input binary rdmols using matching atom lists';
+
+Create Or Replace Function _SCHEMA_.align(probe Bytea, ref Bytea) Returns Float As $EOSQL$
+ With mcs As (Select _SCHEMA_.mcs(array[probe, ref]) smarts)
+  Select _SCHEMA_.align(probe, ref, _SCHEMA_.list_matches(probe, mcs.smarts),
+  _SCHEMA_.list_matches(ref, mcs.smarts)) From mcs; 
+$EOSQL$ Language sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.align(Bytea, Bytea)
+Is 'return RMDS overlap of input binary rdmols using mcs match';
