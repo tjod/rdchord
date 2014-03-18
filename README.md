@@ -1,7 +1,7 @@
 rdchord
 =======
 
-PostgreSQL extension using CHORD and rdkit
+PostgreSQL extension for Chemical Objects in a Relational Database (CHORD) and rdkit
 <h3>Requirements (linux)</h3>
 <ol>
 <li>rdkit installed with python scripting
