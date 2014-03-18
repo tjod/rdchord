@@ -20,7 +20,7 @@ class rdchord:
     if not Global.has_key("pat"): Global["pat"] = dict()
     self.pat = Global["pat"]
 
-  def smiles(self,smi):
+  def smilesBuffer(self,smi):
     """one, or all keys(smiles) stored in global
     """
     if smi:
@@ -28,7 +28,7 @@ class rdchord:
     else:
       return self.mol.keys()
   
-  def smarts(self,sma):
+  def smartsBuffer(self,sma):
     """one, or all keys(smarts) stored in global
     """
     if sma:
@@ -94,6 +94,10 @@ class rdchord:
   def attempt_fix(self,mb):
     """try to fix molblock - typically an aromatic N without H"""
     return None
+
+  def smiles(self,m):
+    """make non-canoncial smiles from molecule: same as input smiles?"""
+    return MolToSmiles(m, isomericSmiles=False, canonical=False)
 
   def cansmiles(self,m):
     """make canonical smiles from molecule"""

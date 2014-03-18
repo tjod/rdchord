@@ -17,20 +17,20 @@ $EOPY$ Language plpythonu Immutable;
 Comment On FUNCTION _SCHEMA_.version()
 Is 'version of rdkit';
 ---------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.smarts(sma text) Returns SetOf Text As $EOPY$
+Create Or Replace Function _SCHEMA_.smartsBuffer(sma text) Returns SetOf Text As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
-return (rc.smarts(sma))
+return (rc.smartsBuffer(sma))
 $EOPY$ Language plpythonu Immutable;
-Comment On FUNCTION _SCHEMA_.smarts(text)
+Comment On FUNCTION _SCHEMA_.smartsBuffer(text)
 Is 'return table of smarts in buffer';
 ---------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.smiles(smi text) Returns SetOf Text As $EOPY$
+Create Or Replace Function _SCHEMA_.smilesBuffer(smi text) Returns SetOf Text As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
-return (rc.smiles(smi))
+return (rc.smilesBuffer(smi))
 $EOPY$ Language plpythonu Immutable;
-Comment On FUNCTION _SCHEMA_.smiles(text)
+Comment On FUNCTION _SCHEMA_.smilesBuffer(text)
 Is 'return table of smiles in buffer';
 
 ---------------------------------------------------------------------------------------------------
@@ -84,6 +84,19 @@ else:
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.cansmiles(Bytea)
+Is 'return canonical smiles of input binary rdmol';
+---------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.smiles(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles(Bytea)
 Is 'return canonical smiles of input binary rdmol';
 
 ---------------------------------------------------------------------------------------------------
@@ -618,3 +631,24 @@ else:
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
 Is 'return inchikey of input binary rdmol';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.mcs(rdmols Bytea[]) Returns Text As $EOPY$
+import rdchord
+from rdkit.Chem import MCS
+rc=rdchord.rdchord(GD)
+mols = []
+n = 0
+for rdmol in rdmols:
+  n += 1
+  m = rc.from_binary(rdmol)
+  if m:
+    mols.append(m)
+  else:
+   plpy.error("Error in input rdmol #%d" % n)
+   return None
+MCSResult = MCS.FindMCS(mols)
+return MCSResult.smarts
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.mcs(Bytea[])
+Is 'return maximal common substructure of input binary rdmols';

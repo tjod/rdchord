@@ -4,7 +4,7 @@ from rdkit import Chem
 
 def rdmol(imol, mol):
   if mol:
-    print str(imol) + "\t" + "\\\\x" + rc.pickle(mol).encode("hex") + "\t" + rc.cansmiles(mol) + "\t" + rc.isosmiles(mol).replace("\\","\\\\") + "\t" + rc.fingerprint(mol,1024,2).ToBitString() + "\t" + mol.GetProp("_Name");
+    print str(imol) + "\t" + "\\\\x" + rc.to_binary(mol).encode("hex") + "\t" + rc.cansmiles(mol) + "\t" + rc.isosmiles(mol).replace("\\","\\\\") + "\t" + rc.fingerprint(mol,1024,2).ToBitString() + "\t" + mol.GetProp("_Name");
   else:
     print str(imol) + "\t\\N\t\\N\t\\N\t\\N"
 
