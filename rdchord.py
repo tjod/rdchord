@@ -11,14 +11,16 @@ class rdchord:
     #  but speeds things up considerably
     #  certainly if an entire table can acutally fit
     # but also if this is the maximum size of a hit list, say from match
+    if not Global.has_key("RDKIT"): Global["RDKIT"] = dict()
+    self.GLRD = Global["RDKIT"]
     self.maxsmi = 1000
+    if not self.GLRD.has_key("mol"): self.GLRD["mol"] = dict()
+    self.mol = self.GLRD["mol"]
     # pick a reasonable number of smarts patterns you expect to use often,
     # say 166 public keys or even 1000 fragment keys
     self.maxsma = 1000
-    if not Global.has_key("mol"): Global["mol"] = dict()
-    self.mol = Global["mol"]
-    if not Global.has_key("pat"): Global["pat"] = dict()
-    self.pat = Global["pat"]
+    if not self.GLRD.has_key("pat"): self.GLRD["pat"] = dict()
+    self.pat = self.GLRD["pat"]
 
   def smilesBuffer(self,smi):
     """one, or all keys(smiles) stored in global
