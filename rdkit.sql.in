@@ -406,7 +406,7 @@ Comment On FUNCTION _SCHEMA_.fp(Bytea, Integer)
 Is 'return flexibly-sized fingerprint of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.fp(rdmol Bytea) Returns Bit As $EOSQL$
- Select _SCHEMA_.fp(rdmol,1024);
+ Select _SCHEMA_.fp($1,1024);
 $EOSQL$ Language SQL Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.fp(Bytea)
 Is 'return default-sized fingerprint of input binary rdmol';
@@ -433,7 +433,7 @@ Comment On FUNCTION _SCHEMA_.fpbits(Bytea, Integer)
 Is 'return flexibly-sized fingerprint bits of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.fpbits(rdmol Bytea) Returns Integer[] As $EOSQL$
- Select _SCHEMA_.fpbits(rdmol,1024);
+ Select _SCHEMA_.fpbits($1,1024);
 $EOSQL$ Language SQL Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.fpbits(Bytea)
 Is 'return default-sized fingerprint bits of input binary rdmol';
@@ -673,9 +673,9 @@ Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea, Integer[], Integer[])
 Is 'return RMDS overlap of input binary rdmols using matching atom lists';
 
 Create Or Replace Function _SCHEMA_.rmsd(probe Bytea, ref Bytea) Returns Float As $EOSQL$
- With mcs As (Select _SCHEMA_.mcs(array[probe, ref]) smarts)
-  Select _SCHEMA_.rmsd(probe, ref, _SCHEMA_.list_matches(probe, mcs.smarts),
-  _SCHEMA_.list_matches(ref, mcs.smarts)) From mcs; 
+ With mcs As (Select _SCHEMA_.mcs(array[$1, $2]) smarts)
+  Select _SCHEMA_.rmsd($1, $2, _SCHEMA_.list_matches($1, mcs.smarts),
+  _SCHEMA_.list_matches($2, mcs.smarts)) From mcs; 
 $EOSQL$ Language sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea)
 Is 'return RMDS overlap of input binary rdmols using mcs match';
