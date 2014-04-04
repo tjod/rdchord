@@ -12,15 +12,15 @@ class rdchord:
     #  certainly if an entire table can acutally fit
     # but also if this is the maximum size of a hit list, say from match
     if not Global.has_key("RDKIT"): Global["RDKIT"] = dict()
-    self.GLRD = Global["RDKIT"]
+    self.GRD = Global["RDKIT"]
     self.maxsmi = 1000
-    if not self.GLRD.has_key("mol"): self.GLRD["mol"] = dict()
-    self.mol = self.GLRD["mol"]
+    if not self.GRD.has_key("mol"): self.GRD["mol"] = dict()
+    self.mol = self.GRD["mol"]
     # pick a reasonable number of smarts patterns you expect to use often,
     # say 166 public keys or even 1000 fragment keys
     self.maxsma = 1000
-    if not self.GLRD.has_key("pat"): self.GLRD["pat"] = dict()
-    self.pat = self.GLRD["pat"]
+    if not self.GRD.has_key("pat"): self.GRD["pat"] = dict()
+    self.pat = self.GRD["pat"]
 
   def smilesBuffer(self,smi):
     """one, or all keys(smiles) stored in global

@@ -28,7 +28,7 @@ def newCopy(properties):
   elif molblocks:
     print "Copy molblocks (id, molblock) From Stdin;"
   else:
-    print "Copy structure (id, rdmol, cansmiles, isosmiles, fp, name) From Stdin;"
+    print "Copy rd_structure (id, rdmol, cansmiles, isosmiles, fp, name) From Stdin;"
 
 properties = False
 molblocks = False
@@ -39,7 +39,6 @@ if len(sys.argv) > 2:
   molfile = sys.argv[1]
   sys.argv.pop(1);
   while len(sys.argv) > 1:
-    print sys.argv
     if sys.argv[1] == "--properties":
       properties = True
       nchunk = 10000
@@ -58,7 +57,7 @@ Grant Usage On Schema %s To Public;
 Set search_path=%s;""" % (schema, schema, schema, schema)
 
 print """
-Create Table structure (
+Create Table rd_structure (
  id Integer Primary Key,
  name Text,
  rdmol Bytea,

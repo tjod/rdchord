@@ -2,4 +2,4 @@
 
 #/usr/lib/postgresql/9.2/bin/createdb -p 5432 rdchord
 createdb rdchord
-bash installdb rdchord
+sudo -u postgres bash installdb rdchord
