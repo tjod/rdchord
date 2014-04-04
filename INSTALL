@@ -1,20 +1,20 @@
+In order to use rdchord and the rdkit.* functions, you must already have the rdkit/python scripting language installed.
+There is documentation about how to do this at http://rdkit.org/
+There may also be synatpics packages (Ubuntu/Debian) or rpm packages (Redhat/CentOS/Fedora/SuSE) to make rdkit installation easier.
+
 In order to install rdchord, take the following steps.
 You should either be logged in as root, or precede each of the commands with sudo.
 
 $ make
 $ make install
 
-In order to use rdchord and the rdkit.* functions, you must have the rdkit/python scripting language installed.
-There is documentation about how to do this at http://rdkit.org/
-There may also be synatpics packages (Ubuntu/Debian) or rpm packages (Redhat/CentOS/Fedora/SuSE) to make rdkit installation easier.
-
 Then install rdchord:
 $ python setup.py install
 
-Add the following lines  to the postgresql environemnt to postgresql aware of the location of rdkit
+Add the following lines to the postgresql environemnt to make postgresql aware of the location of rdkit.
 This environment file may be in another location on your servers, depending the
 version of postgres, the type of operating system or the linux distribution you are using.
-Futher, the values for PYTHONPATH and LD_LIBRARY_PATH will sutely be different,
+Futher, the values for PYTHONPATH and LD_LIBRARY_PATH will surely be different,
 depending on where you installed rdkit.
 For example:
 $ cat >> /etc/postgresql/9.2/main/environment
