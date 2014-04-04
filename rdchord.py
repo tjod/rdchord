@@ -1,4 +1,5 @@
-from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToInchi,InchiToInchiKey,MolToSmarts
+from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts
+from rdkit.Chem import MolToInchi,InchiToInchiKey
 import plpy
 
 class rdchord:
@@ -21,6 +22,11 @@ class rdchord:
     self.maxsma = 1000
     if not self.GRD.has_key("pat"): self.GRD["pat"] = dict()
     self.pat = self.GRD["pat"]
+    try:
+        from rdkit.Chem import MolToInchi,InchiToInchiKey
+        self.hasInchi = True
+    except ImportError:
+        self.hasInchi = False
 
   def smilesBuffer(self,smi):
     """one, or all keys(smiles) stored in global
@@ -180,11 +186,19 @@ class rdchord:
 
   def inchi(self,m):
     """make InChi from molecule"""
-    return MolToInchi(m)
+    if self.hasInchi:
+        return MolToInchi(m)
+    else:
+        plpy.notice('InChi not availabe')
+        return None
 
   def inchikey(self,m):
     """make InChi from molecule"""
-    return InchiToInchiKey(MolToInchi(m))
+    if self.hasInchi:
+        return InchiToInchiKey(MolToInchi(m))
+    else:
+        plpy.notice('InChi not availabe')
+        return None
 
   def molfile(self,m):
     """make molfile from molecule"""
