@@ -652,6 +652,14 @@ return MCSResult.smarts
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[])
 Is 'return maximal common substructure of input binary rdmols';
+-----------------------------------------------------------------------------------------------------
+Create Aggregate _SCHEMA_.mcs(bytea) (
+sfunc = array_append,
+stype = bytea[],
+finalfunc = rd.mcs
+);
+Comment On AGGREGATE _SCHEMA_.mcs(Bytea)
+Is 'return maximal common substructure of input binary rdmols';
 
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.rmsd(probe Bytea, ref Bytea, prbatoms Integer[], refatoms Integer[])
