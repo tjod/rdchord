@@ -1,4 +1,4 @@
-from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts
+from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
 from rdkit.Chem import MolToInchi,InchiToInchiKey
 import plpy
 
@@ -171,7 +171,8 @@ class rdchord:
       else:
         newatom = Atom(atnum)
         #if atom.GetTotalDegree() == 0: newatom.SetNoImplicit(True) # otherwise [Na]. becomes [NaH].
-        newatom.SetFormalCharge(atom.GetFormalCharge())
+        #newatom.SetFormalCharge(atom.GetFormalCharge())
+        newatom.SetFormalCharge(0)
         em.AddAtom(newatom)
         aidx = atom.GetIdx()
         nbridx[aidx] = iatom
@@ -181,8 +182,8 @@ class rdchord:
           if a2idx != None:
             em.AddBond(aidx, a2idx, rdchem.BondType.SINGLE)
     cansmi = self.cansmiles(em.GetMol())
-    cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
-    return cansmi + '.H' + str(hcount)
+    #cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
+    return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
 
   def inchi(self,m):
     """make InChi from molecule"""
