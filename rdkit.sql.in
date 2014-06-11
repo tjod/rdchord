@@ -631,9 +631,11 @@ else:
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
 Is 'return inchikey of input binary rdmol';
-
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.mcs(rdmols Bytea[]) Returns Text As $EOPY$
+
+Create Or Replace Function _SCHEMA_.mcs(rdmols Bytea[], timeout integer,
+ OUT smarts text, OUT completed bool, OUT numAtoms integer, OUT numBonds integer)
+ Returns Record As $EOPY$
 import rdchord
 from rdkit.Chem import MCS
 rc=rdchord.rdchord(GD)
@@ -647,9 +649,15 @@ for rdmol in rdmols:
   else:
    plpy.error("Error in input rdmol #%d" % n)
    return None
-MCSResult = MCS.FindMCS(mols)
-return MCSResult.smarts
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+MCSResult = MCS.FindMCS(mols, timeout=timeout)
+return MCSResult.smarts, MCSResult.completed, MCSResult.numAtoms, MCSResult.numBonds;
+$EOPY$ Language plpythonu Immutable;
+Comment On FUNCTION _SCHEMA_.mcs(Bytea[], Integer)
+Is 'return maximal common substructure of input binary rdmols';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.mcs(rdmols Bytea[]) Returns Text As $EOSQL$
+  Select (mcs(rdmols, 10)).smarts;
+$EOSQL$ Language sql Immutable;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[])
 Is 'return maximal common substructure of input binary rdmols';
 -----------------------------------------------------------------------------------------------------
