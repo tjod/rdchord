@@ -599,7 +599,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.graph(mol)
 else:
- plpy.error("Error in input rdmol")
+ plpy.warning("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.graph(Bytea)
@@ -613,7 +613,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.inchi(mol)
 else:
- plpy.error("Error in input rdmol")
+ plpy.warning("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchi(Bytea)
@@ -626,7 +626,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.inchikey(mol)
 else:
- plpy.error("Error in input rdmol")
+ plpy.warning("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
@@ -647,16 +647,21 @@ for rdmol in rdmols:
   if m:
     mols.append(m)
   else:
-   plpy.error("Error in input rdmol #%d" % n)
+   plpy.warning("Error in input rdmol #%d" % n)
    return None
-MCSResult = MCS.FindMCS(mols, timeout=timeout)
-return MCSResult.smarts, MCSResult.completed, MCSResult.numAtoms, MCSResult.numBonds;
+#return None,False,n,len(mols)
+if len(mols) > 1:
+  MCSResult = MCS.FindMCS(mols, timeout=timeout)
+  return MCSResult.smarts, MCSResult.completed, MCSResult.numAtoms, MCSResult.numBonds;
+else:
+   plpy.error("MCS needs two or more molecules")
+   return None
 $EOPY$ Language plpythonu Immutable;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[], Integer)
 Is 'return maximal common substructure of input binary rdmols';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.mcs(rdmols Bytea[]) Returns Text As $EOSQL$
-  Select (mcs(rdmols, 10)).smarts;
+  Select (_SCHEMA_.mcs(rdmols, 10)).smarts;
 $EOSQL$ Language sql Immutable;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[])
 Is 'return maximal common substructure of input binary rdmols';
@@ -664,7 +669,7 @@ Is 'return maximal common substructure of input binary rdmols';
 Create Aggregate _SCHEMA_.mcs(bytea) (
 sfunc = array_append,
 stype = bytea[],
-finalfunc = rd.mcs
+finalfunc = _SCHEMA_.mcs
 );
 Comment On AGGREGATE _SCHEMA_.mcs(Bytea)
 Is 'return maximal common substructure of input binary rdmols';
