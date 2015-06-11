@@ -1,6 +1,6 @@
 #! /bin/bash -v
 
-VERSION="/usr/lib/postgresql/9.2/"
+VERSION="/usr/lib/postgresql/9.3/"
 PORT=5432
 
 PSQL="$VERSION/bin/psql -p $PORT"

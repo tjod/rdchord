@@ -185,6 +185,32 @@ class rdchord:
     #cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
     return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
 
+  def graph2(self,m):
+    from rdkit.Chem import EditableMol, RemoveHs, Atom, rdchem, SanitizeMol, rdmolops
+    natoms = m.GetNumAtoms()
+    # create new molecule using single bonds only
+    em = EditableMol(Mol())
+    hcount = 0
+    iatom = 0
+    for atom in m.GetAtoms():
+      atnum = atom.GetAtomicNum()
+      hcount += atom.GetTotalNumHs(False)
+      newatom = Atom(atnum)
+      #newatom.SetFormalCharge(atom.GetFormalCharge())
+      em.AddAtom(newatom)
+    for bond in m.GetBonds():
+      em.AddBond(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx(), rdchem.BondType.SINGLE)
+    try:
+      mol = RemoveHs(em.GetMol())
+    except:
+      mol = em.GetMol()
+    #mol = em.GetMol()
+    #SanitizeMol(mol, SanitizeFlags.SANITIZE_ADJUSTHS)
+    #Chem.rdmolops.SanitizeFlags.SANITIZE_ADJUSTHS
+
+    cansmi = self.cansmiles(mol)
+    return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
+
   def inchi(self,m):
     """make InChi from molecule"""
     if self.hasInchi:
