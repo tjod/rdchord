@@ -269,3 +269,43 @@ class rdchord:
     from rdkit.Chem import MACCSkeys
     return MACCSkeys.GenMACCSKeys(m)
 
+  def svg(self, m, width=250, height=250, kekulize=True, adjust=False):
+    from rdkit.Chem.rdmolfiles import SDMolSupplier
+    from rdkit.Chem import rdDepictor
+    from rdkit.Chem.Draw import rdMolDraw2D
+
+    if adjust:
+      minWidth = width / 4
+      minHeight = height / 4
+      # compute bounding box
+      xmax = m.GetConformer().GetAtomPosition(0).x
+      xmin = xmax
+      ymax = m.GetConformer().GetAtomPosition(0).y
+      ymin = ymax
+      for i in range(0, m.GetNumAtoms()):
+          pos = m.GetConformer().GetAtomPosition(i)
+          xmax = max(xmax, pos.x)
+          xmin = min(xmin, pos.x)
+          ymax = max(ymax, pos.y)
+          ymin = min(ymin, pos.y)
+      # set pixels per Angstrom
+      xscale = (xmax-xmin) / 10.0
+      yscale = (ymax-ymin) / 10.0
+      iwidth =  int(max(minWidth,   width * xscale))
+      iheight = int(max(minHeight, height * yscale))
+    else:
+      iwidth = width
+      iheight = height
+    drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
+    #drawer.setScale(svg_width, svg_height, 10.0, 10.0)
+    if kekulize:
+      mcopy=Mol(m.ToBinary())
+      Kekulize(mcopy)
+      drawer.DrawMolecule(mcopy)
+    else:
+      drawer.DrawMolecule(m)
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    
+    #extra = "<br>%dx%d(%.2f,%.2f)(%.2f,%.2f)" % (iwidth, iheight, xmin, xmax, ymin, ymax)
+    return  svg

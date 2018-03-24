@@ -700,3 +700,22 @@ Create Or Replace Function _SCHEMA_.rmsd(probe Bytea, ref Bytea) Returns Float A
 $EOSQL$ Language sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea)
 Is 'return RMDS overlap of input binary rdmols using mcs match';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer, kekulize Boolean, adjust Boolean) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+  return rc.svg(mol, width, height, kekulize, adjust)
+else:
+  return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Boolean, Boolean)
+Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer) Returns Text As $EOPY$
+  Select _SCHEMA_.svg(rdmol, width, height, True, False);
+$EOPY$ Language sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer)
+Is 'return SVG drawing of input binary rdmol';

@@ -22,7 +22,7 @@ Grant Usage On Schema $OC_SCHEMA to public;
 EOSQL
 $CREATELANG plpythonu $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < varbit.sql.in | $PSQL $DB
-sed s/_SCHEMA_  /$RD_SCHEMA/g < rdkit.sql.in | $PSQL $DB
+sed s/_SCHEMA_/$RD_SCHEMA/g < rdkit.sql.in | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < bits.sql.in | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < query.sql.in | sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < public166keys.sql.in | sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
