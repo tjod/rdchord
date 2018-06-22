@@ -248,23 +248,33 @@ Comment On FUNCTION _SCHEMA_.molfile_to_rdmol(Text)
 Is 'return binary rdmol from input molblock';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text) Returns Bytea As $EOPY$
+Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text, add2d Boolean) Returns Bytea As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
 mol = rc.parse_smi(smi)
 if mol:
- return rc.to_binary(mol)
+ if add2d:
+  return rc.to_binary(rc.add_2Dcoords(mol))
+ else:
+  return rc.to_binary(mol)
 else:
  plpy.warning("Error in input smiles")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text, Boolean)
+Is 'return binary rdmol from input smiles with optional added 2D coords';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text) Returns Bytea As $EOSQL$
+ Select _SCHEMA_.smiles_to_rdmol($1, false);
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text)
 Is 'return binary rdmol from input smiles';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.smiles_to_molfile(smi Text) Returns Text As $EOPY$
+Create Or Replace Function _SCHEMA_.smiles_to_molfile(smi Text) Returns Text As $EOSQL$
  Select _SCHEMA_.molfile(_SCHEMA_.smiles_to_rdmol($1));
-$EOPY$ Language Sql Immutable Returns Null On Null Input;
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles_to_molfile(Text)
 Is 'return molfile from input smiles';
 

@@ -103,6 +103,13 @@ class rdchord:
     """try to fix molblock - typically an aromatic N without H"""
     return None
 
+  def add_2Dcoords(self,m):
+    """add computed 2D coords to input mol; return conformer number"""
+    from rdkit.Chem import rdDepictor
+    mcopy=Mol(m.ToBinary())
+    rdDepictor.Compute2DCoords(mcopy)
+    return mcopy
+
   def smiles(self,m):
     """make non-canoncial smiles from molecule: same as input smiles?"""
     return MolToSmiles(m, isomericSmiles=False, canonical=False)
