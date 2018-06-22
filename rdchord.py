@@ -1,5 +1,4 @@
 from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
-from rdkit.Chem import MolToInchi,InchiToInchiKey
 import plpy
 
 class rdchord:
@@ -223,7 +222,7 @@ class rdchord:
     if self.hasInchi:
         return MolToInchi(m)
     else:
-        plpy.notice('InChi not availabe')
+        plpy.notice('InChi not available')
         return None
 
   def inchikey(self,m):
@@ -231,7 +230,7 @@ class rdchord:
     if self.hasInchi:
         return InchiToInchiKey(MolToInchi(m))
     else:
-        plpy.notice('InChi not availabe')
+        plpy.notice('InChi not available')
         return None
 
   def molfile(self,m):
