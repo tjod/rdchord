@@ -220,6 +220,7 @@ class rdchord:
   def inchi(self,m):
     """make InChi from molecule"""
     if self.hasInchi:
+        from rdkit.Chem import MolToInchi
         return MolToInchi(m)
     else:
         plpy.notice('InChi not available')
@@ -228,6 +229,7 @@ class rdchord:
   def inchikey(self,m):
     """make InChi from molecule"""
     if self.hasInchi:
+        from rdkit.Chem import MolToInchi,InchiToInchiKey
         return InchiToInchiKey(MolToInchi(m))
     else:
         plpy.notice('InChi not available')
