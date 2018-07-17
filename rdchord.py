@@ -306,12 +306,11 @@ class rdchord:
       iheight = height
     drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
     #drawer.setScale(svg_width, svg_height, 10.0, 10.0)
+    mcopy=Mol(m.ToBinary())
     if kekulize:
-      mcopy=Mol(m.ToBinary())
       Kekulize(mcopy)
-      drawer.DrawMolecule(mcopy)
-    else:
-      drawer.DrawMolecule(m)
+    drawer.PrepareMolForDrawing(mcopy, wedgeBonds=True, addChiralHs=True)
+    drawer.DrawMolecule(mcopy)
     drawer.FinishDrawing()
     svg = drawer.GetDrawingText()
     
