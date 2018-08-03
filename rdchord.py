@@ -1,4 +1,4 @@
-from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
+from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge,AllChem
 import plpy
 
 class rdchord:
@@ -277,15 +277,15 @@ class rdchord:
     from rdkit.Chem import MACCSkeys
     return MACCSkeys.GenMACCSKeys(m)
 
-  def svg(self, m, width=250, height=250, kekulize=True, adjust=False):
+  def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False):
     from rdkit.Chem.rdmolfiles import SDMolSupplier
     from rdkit.Chem import rdDepictor
     from rdkit.Chem.Draw import rdMolDraw2D
 
     if adjust:
+      # compute bounding box
       minWidth = width / 4
       minHeight = height / 4
-      # compute bounding box
       xmax = m.GetConformer().GetAtomPosition(0).x
       xmin = xmax
       ymax = m.GetConformer().GetAtomPosition(0).y
@@ -305,13 +305,9 @@ class rdchord:
       iwidth = width
       iheight = height
     drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
-    #drawer.setScale(svg_width, svg_height, 10.0, 10.0)
-    #mcopy=Mol(m.ToBinary())
     mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=kekulize, wedgeBonds=True, addChiralHs=True)
-    #if kekulize:
-    #  Kekulize(mcopy)
+    if matchmol:
+        AllChem.GenerateDepictionMatching2DStructure(mcopy, matchmol)
     drawer.DrawMolecule(mcopy)
     drawer.FinishDrawing()
-    svg = drawer.GetDrawingText()
-    #extra = "<br>%dx%d(%.2f,%.2f)(%.2f,%.2f)" % (iwidth, iheight, xmin, xmax, ymin, ymax)
-    return  svg
+    return drawer.GetDrawingText()

@@ -272,6 +272,30 @@ Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text)
 Is 'return binary rdmol from input smiles';
 
 -----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smarts_to_rdmol(sma Text, add2d Boolean) Returns Bytea As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.parse_sma(sma)
+if mol:
+ if add2d:
+  return rc.to_binary(rc.add_2Dcoords(mol))
+ else:
+  return rc.to_binary(mol)
+else:
+ plpy.warning("Error in input smarts")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smarts_to_rdmol(Text, Boolean)
+Is 'return binary rdmol from input smarts with optional added 2D coords';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smarts_to_rdmol(sma Text) Returns Bytea As $EOSQL$
+ Select _SCHEMA_.smarts_to_rdmol($1, false);
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smarts_to_rdmol(Text)
+Is 'return binary rdmol from input smarts';
+
+-----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.smiles_to_molfile(smi Text) Returns Text As $EOSQL$
  Select _SCHEMA_.molfile(_SCHEMA_.smiles_to_rdmol($1));
 $EOSQL$ Language Sql Immutable Returns Null On Null Input;
@@ -712,20 +736,24 @@ Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea)
 Is 'return RMDS overlap of input binary rdmols using mcs match';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer, kekulize Boolean, adjust Boolean) Returns Text As $EOPY$
+Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer, matchmol Bytea, kekulize Boolean, adjust Boolean) Returns Text As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
 mol = rc.from_binary(rdmol)
+if matchmol:
+  mm = rc.from_binary(matchmol)
+else:
+  mm = None
 if mol:
-  return rc.svg(mol, width, height, kekulize, adjust)
+  return rc.svg(mol, width=width, height=height, matchmol=mm, kekulize=kekulize, adjust=adjust)
 else:
   return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
-Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Boolean, Boolean)
+$EOPY$ Language plpythonu Immutable;
+Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean)
 Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer) Returns Text As $EOPY$
-  Select _SCHEMA_.svg(rdmol, width, height, True, False);
+  Select _SCHEMA_.svg(rdmol, width, height, Null, True, False);
 $EOPY$ Language sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer)
 Is 'return SVG drawing of input binary rdmol';
