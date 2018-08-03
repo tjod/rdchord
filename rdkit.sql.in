@@ -1,7 +1,7 @@
 -- Copyright TJ O'Donnell 2009, 2010
 ---------------------------------------------------------------------------------------------------
 -- plpy.error used for smiles, since valid can be used handily to prevent errors
--- plpy.warning used for smarts and files, since there is no valid_smarts or valid_file function
+-- plpy.warning used for files, since there is no valid_smarts or valid_file function
 ---------------------------------------------------------------------------------------------------
 Drop Schema _SCHEMA_ Cascade;
 Create Schema _SCHEMA_;
@@ -302,7 +302,7 @@ if mol:
  if pat:
   return rc.matches(mol,pat)
  else:
-  plpy.warning("Error in input smarts"+sma)
+  plpy.error("Error in input smarts"+sma)
   return None
 
 else:
@@ -326,7 +326,7 @@ if mol:
   else:
    return 0
  else:
-  plpy.warning("Error in input smarts "+sma)
+  plpy.error("Error in input smarts "+sma)
   return None
 
 else:
@@ -357,7 +357,7 @@ if mol:
    return None 
 
  else:
-  plpy.warning("Error in input smarts "+sma)
+  plpy.error("Error in input smarts "+sma)
   return None
 
 else:
@@ -609,7 +609,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.graph(mol)
 else:
- plpy.warning("Error in input rdmol")
+ plpy.error("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.graph(Bytea)
@@ -623,7 +623,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.inchi(mol)
 else:
- plpy.warning("Error in input rdmol")
+ plpy.error("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchi(Bytea)
@@ -636,7 +636,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.inchikey(mol)
 else:
- plpy.warning("Error in input rdmol")
+ plpy.error("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
@@ -657,7 +657,7 @@ for rdmol in rdmols:
   if m:
     mols.append(m)
   else:
-   plpy.warning("Error in input rdmol #%d" % n)
+   plpy.error("Error in input rdmol #%d" % n)
    return None
 #return None,False,n,len(mols)
 if len(mols) > 1:
