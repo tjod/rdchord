@@ -1,4 +1,4 @@
-from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge,AllChem
+from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
 import plpy
 
 class rdchord:
@@ -280,6 +280,8 @@ class rdchord:
   def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False):
     from rdkit.Chem.rdmolfiles import SDMolSupplier
     from rdkit.Chem import rdDepictor
+    from rdkit.Chem import AllChem
+    from rdkit.Chem import Kekulize
     from rdkit.Chem.Draw import rdMolDraw2D
 
     if adjust:
@@ -305,9 +307,10 @@ class rdchord:
       iwidth = width
       iheight = height
     drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
-    mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=kekulize, wedgeBonds=True, addChiralHs=True)
+    mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=False, wedgeBonds=True, addChiralHs=True)
     if matchmol:
         AllChem.GenerateDepictionMatching2DStructure(mcopy, matchmol)
+    if kekulize: Kekulize(mcopy)
     drawer.DrawMolecule(mcopy)
     drawer.FinishDrawing()
     return drawer.GetDrawingText()
