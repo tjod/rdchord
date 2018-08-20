@@ -308,12 +308,13 @@ class rdchord:
       iheight = height
     drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
     mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=False, wedgeBonds=True, addChiralHs=True)
-    if matchmol and orient:
+    if matchmol:
+        matched_atoms=list(m.GetSubstructMatch(matchmol))
+    if len(matched_atoms) > 0 and orient:
         AllChem.GenerateDepictionMatching2DStructure(mcopy, matchmol)
     if kekulize: Kekulize(mcopy)
-    if matchmol and highlight:
-        highlight=list(m.GetSubstructMatch(matchmol))
-        drawer.DrawMolecule(mcopy, highlightAtoms=highlight)
+    if len(matched_atoms) > 0 and highlight:
+        drawer.DrawMolecule(mcopy, highlightAtoms=matched_atoms)
     else:
         drawer.DrawMolecule(mcopy)
     drawer.FinishDrawing()
