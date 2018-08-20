@@ -736,7 +736,7 @@ Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea)
 Is 'return RMDS overlap of input binary rdmols using mcs match';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer, matchmol Bytea, kekulize Boolean, adjust Boolean) Returns Text As $EOPY$
+Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer, matchmol Bytea, kekulize Boolean, adjust Boolean, orient Boolean, highlight Boolean) Returns Text As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
 mol = rc.from_binary(rdmol)
@@ -745,15 +745,15 @@ if matchmol:
 else:
   mm = None
 if mol:
-  return rc.svg(mol, width=width, height=height, matchmol=mm, kekulize=kekulize, adjust=adjust)
+  return rc.svg(mol, width=width, height=height, matchmol=mm, kekulize=kekulize, adjust=adjust, orient=orient, highlight=highlight)
 else:
   return None
 $EOPY$ Language plpythonu Immutable;
-Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean)
-Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size';
+Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean, Boolean)
+Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size, option orient, optional highlight';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer) Returns Text As $EOPY$
-  Select _SCHEMA_.svg(rdmol, width, height, Null, True, False);
+  Select _SCHEMA_.svg(rdmol, width, height, Null, True, False, False, False);
 $EOPY$ Language sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer)
 Is 'return SVG drawing of input binary rdmol';

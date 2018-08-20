@@ -277,7 +277,7 @@ class rdchord:
     from rdkit.Chem import MACCSkeys
     return MACCSkeys.GenMACCSKeys(m)
 
-  def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False):
+  def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False, orient=False, highlight=False):
     from rdkit.Chem.rdmolfiles import SDMolSupplier
     from rdkit.Chem import rdDepictor
     from rdkit.Chem import AllChem
@@ -308,9 +308,13 @@ class rdchord:
       iheight = height
     drawer = rdMolDraw2D.MolDraw2DSVG(iwidth, iheight)
     mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=False, wedgeBonds=True, addChiralHs=True)
-    if matchmol:
+    if matchmol and orient:
         AllChem.GenerateDepictionMatching2DStructure(mcopy, matchmol)
     if kekulize: Kekulize(mcopy)
-    drawer.DrawMolecule(mcopy)
+    if matchmol and highlight:
+        highlight=list(m.GetSubstructMatch(matchmol))
+        drawer.DrawMolecule(mcopy, highlightAtoms=highlight)
+    else:
+        drawer.DrawMolecule(mcopy)
     drawer.FinishDrawing()
     return drawer.GetDrawingText()
