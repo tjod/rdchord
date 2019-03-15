@@ -1,7 +1,7 @@
 -- Copyright TJ O'Donnell 2009, 2010
 ---------------------------------------------------------------------------------------------------
 -- plpy.error used for smiles, since valid can be used handily to prevent errors
--- plpy.warning used for files, since there is no valid_smarts or valid_file function
+-- plpy.warning used for files and smarts, since there is no valid_smarts or valid_file function
 ---------------------------------------------------------------------------------------------------
 Drop Schema _SCHEMA_ Cascade;
 Create Schema _SCHEMA_;
@@ -228,7 +228,7 @@ mol = rc.from_binary(rdmol)
 if mol:
  return rc.molfile(mol)
 else:
- plpy.error("Error in input rdmol")
+ plpy.warning("Error in input rdmol")
  return None
 $EOPY$ Language plpythonu Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.molfile(Bytea)
@@ -326,7 +326,7 @@ if mol:
  if pat:
   return rc.matches(mol,pat)
  else:
-  plpy.error("Error in input smarts"+sma)
+  plpy.warning("Error in input smarts"+sma)
   return None
 
 else:
@@ -350,7 +350,7 @@ if mol:
   else:
    return 0
  else:
-  plpy.error("Error in input smarts "+sma)
+  plpy.warning("Error in input smarts "+sma)
   return None
 
 else:
@@ -381,7 +381,7 @@ if mol:
    return None 
 
  else:
-  plpy.error("Error in input smarts "+sma)
+  plpy.warning("Error in input smarts "+sma)
   return None
 
 else:
