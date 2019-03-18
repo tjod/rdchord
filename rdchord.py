@@ -286,8 +286,8 @@ class rdchord:
 
     if adjust:
       # compute bounding box
-      minWidth = width / 4
-      minHeight = height / 4
+      minWidth = width
+      minHeight = height
       xmax = m.GetConformer().GetAtomPosition(0).x
       xmin = xmax
       ymax = m.GetConformer().GetAtomPosition(0).y
