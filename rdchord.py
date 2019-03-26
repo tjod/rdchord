@@ -171,7 +171,7 @@ class rdchord:
     iatom = 0
     for atom in m.GetAtoms():
       atnum = atom.GetAtomicNum()
-      if atnum == 1:
+      if atnum == 1 and atom.GetIsotope() == 1:
         #if atom.GetMass() > 1: pass
         hcount += 1
       else:
@@ -187,7 +187,8 @@ class rdchord:
           a2idx = nbridx[a2.GetIdx()]
           if a2idx != None:
             em.AddBond(aidx, a2idx, rdchem.BondType.SINGLE)
-    cansmi = self.cansmiles(em.GetMol())
+    #cansmi = self.cansmiles(em.GetMol())
+    cansmi = MolToSmiles(m, isomericSmiles=True)
     #cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
     return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
 
