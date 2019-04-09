@@ -310,11 +310,25 @@ Comment On FUNCTION _SCHEMA_.molfile_to_smiles(Text)
 Is 'return smiles from input molfile';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.rdmol(smi Text) Returns Bytea As $EOPY$
+Create Or Replace Function _SCHEMA_.rdmol(smi Text) Returns Bytea As $EOSQL$
  Select _SCHEMA_.smiles_to_rdmol($1);
-$EOPY$ Language Sql Immutable Returns Null On Null Input;
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.rdmol(Text)
 Is 'return binary rdmol from input smiles';
+
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smarts(rdmol Bytea) Returns Text As $EOPY$
+import rdchord
+rc=rdchord.rdchord(GD)
+mol = rc.from_binary(rdmol)
+if mol:
+ return rc.smarts(mol)
+else:
+ plpy.error("Error in input rdmol")
+ return None
+$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smarts(Bytea)
+Is 'return smarts from binary rdmol';
 
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.matches(rdmol Bytea, sma Text) Returns Boolean As $EOPY$
