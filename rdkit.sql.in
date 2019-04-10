@@ -3,7 +3,7 @@
 -- plpy.error used for smiles, since valid can be used handily to prevent errors
 -- plpy.warning used for files and smarts, since there is no valid_smarts or valid_file function
 ---------------------------------------------------------------------------------------------------
-Drop Schema _SCHEMA_ Cascade;
+Drop Schema If Exists _SCHEMA_ Cascade;
 Create Schema _SCHEMA_;
 Comment On Schema _SCHEMA_ Is 'based on python functions from RDKit';
 Grant Usage On Schema _SCHEMA_ to public;
@@ -645,7 +645,7 @@ import rdchord
 rc=rdchord.rdchord(GD)
 mol = rc.from_binary(rdmol)
 if mol:
- return rc.graph(mol)
+ return rc.graph2(mol)
 else:
  plpy.error("Error in input rdmol")
  return None
