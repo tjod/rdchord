@@ -1,5 +1,5 @@
-from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolFromMolBlock,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
-import plpy
+from rdkit.Chem import Mol,MolFromSmiles,MolToSmiles,MolToMolBlock,MolFromSmarts,Kekulize,SDMolSupplier,MolToSmarts,GetFormalCharge
+#from plpy import plpy
 
 class rdchord:
 
@@ -55,12 +55,12 @@ class rdchord:
 		newmol = MolFromSmiles(smi)
 		if newmol:
 			if len(self.mol) < self.maxsmi:
-				  #plpy.notice('new mol for %s' % smi)
-				  pass
+				#plpy.notice('new mol for %s' % smi)
+				pass
 			else:
-				  self.mol.popitem()
-				  #key,psmi = self.mol.popitem()
-				  #plpy.notice('mol reuse %s for %s' % (key,psmi))
+				self.mol.popitem()
+				#key,psmi = self.mol.popitem()
+				#plpy.notice('mol reuse %s for %s' % (key,psmi))
 			self.mol[smi] = newmol
 			return newmol
 		else:
@@ -75,12 +75,12 @@ class rdchord:
 		newpat = MolFromSmarts(sma)
 		if newpat:
 			if len(self.pat) < self.maxsma:
-				  #plpy.notice('new pat for "%s"' % sma)
-				  pass
+				#plpy.notice('new pat for "%s"' % sma)
+				pass
 			else:
-				  self.pat.popitem()
-				  #key,pat = self.pat.popitem()
-				  #plpy.notice('pattern reuse %s for %s' % (key,sma))
+				self.pat.popitem()
+				#key,pat = self.pat.popitem()
+				#plpy.notice('pattern reuse %s for %s' % (key,sma))
 			self.pat[sma] = newpat
 			return newpat
 		else:
@@ -193,8 +193,8 @@ class rdchord:
 		return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
 
 	def graph2(self,m):
-		from rdkit.Chem import EditableMol, RemoveHs, Atom, rdchem, SanitizeMol, rdmolops
-		natoms = m.GetNumAtoms()
+		from rdkit.Chem import EditableMol, RemoveHs, Atom, rdchem #, SanitizeMol, rdmolops
+		#natoms = m.GetNumAtoms()
 		# create new molecule using single bonds only
 		em = EditableMol(Mol())
 		hcount = 0
@@ -223,7 +223,7 @@ class rdchord:
 			from rdkit.Chem import MolToInchi
 			return MolToInchi(m)
 		else:
-			plpy.notice('InChi not available')
+			#plpy.notice('InChi not available')
 			return None
 
 	def inchikey(self,m):
@@ -232,7 +232,7 @@ class rdchord:
 			from rdkit.Chem import MolToInchi,InchiToInchiKey
 			return InchiToInchiKey(MolToInchi(m))
 		else:
-			plpy.notice('InChi not available')
+			#plpy.notice('InChi not available')
 			return None
 
 	def molfile(self,m):
@@ -282,10 +282,10 @@ class rdchord:
 		return MACCSkeys.GenMACCSKeys(m)
 
 	def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False, orient=False, highlight=False):
-		from rdkit.Chem.rdmolfiles import SDMolSupplier
-		from rdkit.Chem import rdDepictor
+		#from rdkit.Chem.rdmolfiles import SDMolSupplier
+		#from rdkit.Chem import rdDepictor
 		from rdkit.Chem import AllChem
-		from rdkit.Chem import Kekulize
+		#from rdkit.Chem import Kekulize
 		from rdkit.Chem.Draw import rdMolDraw2D
 
 		if adjust:
