@@ -1,6 +1,7 @@
 #! /bin/bash -v
 
-VERSION="/usr/lib/postgresql/9.3/"
+#VERSION="/usr/lib/postgresql/9.3/"
+VERSION="/usr/pgsql-9.6/"
 PORT=5432
 
 PSQL="$VERSION/bin/psql -p $PORT"
@@ -16,6 +17,7 @@ RD_SCHEMA=rd
 OC_SCHEMA=oc
 
 $PSQL $DB <<EOSQL
+Drop Schema If Exists $OC_SCHEMA Cascade;
 Create Schema $OC_SCHEMA;
 Comment On Schema $OC_SCHEMA Is 'function for general use with openbabel or rdkit';
 Grant Usage On Schema $OC_SCHEMA to public;
