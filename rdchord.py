@@ -190,7 +190,7 @@ class rdchord:
 		#cansmi = self.cansmiles(em.GetMol())
 		cansmi = MolToSmiles(m, isomericSmiles=True)
 		#cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
-		return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
+		return "%s%s%d%+d" % (cansmi, ' H',  hcount, GetFormalCharge(m))
 
 	def graph2(self,m):
 		from rdkit.Chem import EditableMol, RemoveHs, Atom, rdchem #, SanitizeMol, rdmolops
@@ -215,7 +215,7 @@ class rdchord:
 		#Chem.rdmolops.SanitizeFlags.SANITIZE_ADJUSTHS
 
 		cansmi = self.cansmiles(mol)
-		return "%s%s%d%+d" % (cansmi, '.H',  hcount, GetFormalCharge(m))
+		return "%s%s%d%+d" % (cansmi, ' H',  hcount, GetFormalCharge(m))
 
 	def inchi(self,m):
 		"""make InChi from molecule"""
