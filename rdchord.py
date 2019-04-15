@@ -11,18 +11,18 @@ class rdchord:
 		#  but speeds things up considerably
 		#  certainly if an entire table can acutally fit
 		# but also if this is the maximum size of a hit list, say from match
-		if not Global.has_key("RDKIT"): Global["RDKIT"] = dict()
+		if "RDKIT" not in Global: Global["RDKIT"] = dict()
 		self.GRD = Global["RDKIT"]
 		self.maxsmi = 1000
-		if not self.GRD.has_key("mol"): self.GRD["mol"] = dict()
+		if "mol" not in Global: self.GRD["mol"] = dict()
 		self.mol = self.GRD["mol"]
 		# pick a reasonable number of smarts patterns you expect to use often,
 		# say 166 public keys or even 1000 fragment keys
 		self.maxsma = 1000
-		if not self.GRD.has_key("pat"): self.GRD["pat"] = dict()
+		if "pat" not in Global: self.GRD["pat"] = dict()
 		self.pat = self.GRD["pat"]
 		try:
-			from rdkit.Chem import MolToInchi,InchiToInchiKey
+			#from rdkit.Chem import MolToInchi,InchiToInchiKey
 			self.hasInchi = True
 		except ImportError:
 			self.hasInchi = False
@@ -46,7 +46,7 @@ class rdchord:
 	def parse_smi(self,smi):
 		"""parse smiles and return Mol after storing in global dict
 			 or return from global dict"""
-		if self.mol.has_key(smi):
+		if smi in self.mol:
 			# return copy is slower, but safer?
 			#return Mol(self.mol[smi])
 			#plpy.notice('found mol for %s' % smi)
@@ -69,7 +69,7 @@ class rdchord:
 	def parse_sma(self,sma):
 		"""parse smarts and return SmartsPattern after storing in global dict
 			 or return from global dict"""
-		if self.pat.has_key(sma):
+		if sma in self.pat:
 			return self.pat[sma]
 
 		newpat = MolFromSmarts(sma)
