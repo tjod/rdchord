@@ -1,11 +1,14 @@
 #! /bin/bash -v
 
 #VERSION="/usr/lib/postgresql/9.3/"
-VERSION="/usr/pgsql-9.6/"
+#VERSION="/usr/pgsql-9.6/"
+VERSION="/usr"
 PORT=5432
 
 PSQL="$VERSION/bin/psql -p $PORT"
-CREATELANG="$VERSION/bin/createlang -p $PORT"
+#CREATELANG="$VERSION/bin/createlang -p $PORT"
+#PYLANG="plpython2u"
+PYLANG="plpython3u"
 
 DB=$1
 if [ -z ${DB} ] ; then
@@ -22,9 +25,9 @@ Create Schema $OC_SCHEMA;
 Comment On Schema $OC_SCHEMA Is 'function for general use with openbabel or rdkit';
 Grant Usage On Schema $OC_SCHEMA to public;
 EOSQL
-$CREATELANG plpythonu $DB
+#$CREATELANG $PYLANG $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < varbit.sql.in | $PSQL $DB
-sed s/_SCHEMA_/$RD_SCHEMA/g < rdkit.sql.in | $PSQL $DB
+sed s/_SCHEMA_/$RD_SCHEMA/g < rdkit.sql.in | sed s/_PYLANG_/$PYLANG/g | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < bits.sql.in | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < query.sql.in | sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB
 sed s/_OCSCHEMA_/$OC_SCHEMA/g < public166keys.sql.in | sed s/_SCHEMA_/$RD_SCHEMA/g | $PSQL $DB

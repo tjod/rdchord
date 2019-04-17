@@ -52,7 +52,8 @@ class rdchord:
 			#plpy.notice('found mol for %s' % smi)
 			return self.mol[smi]
 
-		newmol = MolFromSmiles(smi)
+		smiles_name = smi.split()
+		newmol = MolFromSmiles(smiles_name[0])
 		if newmol:
 			if len(self.mol) < self.maxsmi:
 				#plpy.notice('new mol for %s' % smi)
@@ -62,6 +63,8 @@ class rdchord:
 				#key,psmi = self.mol.popitem()
 				#plpy.notice('mol reuse %s for %s' % (key,psmi))
 			self.mol[smi] = newmol
+			if len(smiles_name) > 1:
+                            newmol.SetProp("_Name", smiles_name[1])
 			return newmol
 		else:
 			return None
@@ -92,7 +95,7 @@ class rdchord:
 		#mol = MolFromMolBlock(mb)
 		sd = SDMolSupplier()
 		sd.SetData(mb)
-		mol = sd.next()
+		mol = next(sd)
 		if mol:
 			return mol
 		else:
@@ -239,9 +242,9 @@ class rdchord:
 		"""make molfile from molecule"""
 		return MolToMolBlock(m)
 
-	def to_binary(self,m):
+	def to_binary(self,m, propertyFlag=0):
 		"""return binary representation of mol"""
-		return m.ToBinary()
+		return m.ToBinary(propertyFlag)
 
 	def from_binary(self,b):
 		"""reconstitute binary mol"""

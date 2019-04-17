@@ -3,17 +3,19 @@
 -- plpy.error used for smiles, since valid can be used handily to prevent errors
 -- plpy.warning used for files and smarts, since there is no valid_smarts or valid_file function
 ---------------------------------------------------------------------------------------------------
+Create Language _PYLANG_;
+
 Drop Schema If Exists _SCHEMA_ Cascade;
 Create Schema _SCHEMA_;
 Comment On Schema _SCHEMA_ Is 'based on python functions from RDKit';
 Grant Usage On Schema _SCHEMA_ to public;
---Create Language plpythonu;
+--Create Language _PYLANG_;
 
 ---------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.version() Returns Text As $EOPY$
 from rdkit import rdBase
 return rdBase.rdkitVersion
-$EOPY$ Language plpythonu Immutable;
+$EOPY$ Language _PYLANG_ Immutable;
 Comment On FUNCTION _SCHEMA_.version()
 Is 'version of rdkit';
 ---------------------------------------------------------------------------------------------------
@@ -21,7 +23,7 @@ Create Or Replace Function _SCHEMA_.smartsBuffer(sma text) Returns SetOf Text As
 import rdchord
 rc=rdchord.rdchord(GD)
 return (rc.smartsBuffer(sma))
-$EOPY$ Language plpythonu Immutable;
+$EOPY$ Language _PYLANG_ Immutable;
 Comment On FUNCTION _SCHEMA_.smartsBuffer(text)
 Is 'return table of smarts in buffer';
 ---------------------------------------------------------------------------------------------------
@@ -29,7 +31,7 @@ Create Or Replace Function _SCHEMA_.smilesBuffer(smi text) Returns SetOf Text As
 import rdchord
 rc=rdchord.rdchord(GD)
 return (rc.smilesBuffer(smi))
-$EOPY$ Language plpythonu Immutable;
+$EOPY$ Language _PYLANG_ Immutable;
 Comment On FUNCTION _SCHEMA_.smilesBuffer(text)
 Is 'return table of smiles in buffer';
 
@@ -41,7 +43,7 @@ if rc.parse_smi(smi):
   return True
 else:
   return False
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.valid(Text)
 Is 'return true if input smiles is valid';
 
@@ -54,7 +56,7 @@ if mol:
   return mol.GetNumAtoms()
 else:
   return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.num_atoms(Bytea)
 Is 'return number of atoms in input binary rdmol';
 
@@ -68,7 +70,7 @@ Is 'return number of atoms in input binary rdmol';
 --  return mol.GetNumAtoms()
 --else:
 --  return None
---EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+--EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 --Comment On FUNCTION _SCHEMA_.num_atoms(Bytea)
 --Is 'return number of atoms in input binary rdmol';
 --
@@ -82,7 +84,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.cansmiles(Bytea)
 Is 'return canonical smiles of input binary rdmol';
 ---------------------------------------------------------------------------------------------------
@@ -95,7 +97,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles(Bytea)
 Is 'return canonical smiles of input binary rdmol';
 
@@ -109,7 +111,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.isosmiles(Bytea)
 Is 'return canonical isomeric smiles of input binary rdmol';
 
@@ -130,7 +132,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.keksmiles(Bytea)
 Is 'return kekule smiles of input binary rdmol';
 
@@ -144,7 +146,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.impsmiles(Bytea, Boolean)
 Is 'return implicit-H smiles of input smiles, with isomeric atoms optionally preserved';
 ---------------------------------------------------------------------------------------------------
@@ -157,7 +159,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.impsmiles(Bytea)
 Is 'return implicit-H smiles of input smiles';
 
@@ -171,13 +173,13 @@ if mol:
 else:
  plpy.error("Error in input smiles "+smi)
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles_to_symbols(Bytea)
 Is 'return arrary of atomic symbols of input binary rdmol';
 
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.smiles_to_bond_set(rdmol Bytea) Returns SetOf Integer[] As $EOPY$
-# Since plpython does not support arrays of dimension higher than one,
+# Since _PYLANG_ does not support arrays of dimension higher than one,
 # this function returns rows of 1-D arrays to make smiles_to_bonds possible.
 # This function is not intended for general use, but there is no harm whatsoever in using it.
 import rdchord
@@ -202,7 +204,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles_to_bond_set(Bytea)
 Is 'return table of bonds (atom,atom,bond order) of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
@@ -230,46 +232,67 @@ if mol:
 else:
  plpy.warning("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.molfile(Bytea)
 Is 'return molfile converted from input binary rdmol';
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.molfile_to_rdmol(mb Text) Returns Bytea As $EOPY$
+Create Or Replace Function _SCHEMA_.molfile_to_rdmol(mb Text, properties Boolean) Returns Bytea As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
 mol = rc.parse_molblock(mb)
+# pickle mol public and private properties
+if properties:
+  propertyFlag = 0b10001
+else:
+  propertyFlag = 0
 if mol:
- return rc.to_binary(mol)
+ return rc.to_binary(mol, propertyFlag)
 else:
  plpy.warning("Error in input molblock "+mb[0:50])
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.molfile_to_rdmol(Text, Boolean)
+Is 'return binary rdmol from input molblock with optional properties retained';
+-----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.molfile_to_rdmol(mb Text) Returns Bytea As $EOSQL$
+ Select _SCHEMA_.molfile_to_rdmol($1, false);
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.molfile_to_rdmol(Text)
-Is 'return binary rdmol from input molblock';
+Is 'return binary rdmol from input smiles with no properties retained';
 
 -----------------------------------------------------------------------------------------------------
-Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text, add2d Boolean) Returns Bytea As $EOPY$
+Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text, add2d Boolean, keep_name Boolean) Returns Bytea As $EOPY$
 import rdchord
 rc=rdchord.rdchord(GD)
+if keep_name:
+  propertyFlag = 0b10001
+else:
+  propertyFlag = 0
 mol = rc.parse_smi(smi)
 if mol:
  if add2d:
-  return rc.to_binary(rc.add_2Dcoords(mol))
+  return rc.to_binary(rc.add_2Dcoords(mol), propertyFlag)
  else:
-  return rc.to_binary(mol)
+  return rc.to_binary(mol, propertyFlag)
 else:
  plpy.warning("Error in input smiles")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
-Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text, Boolean)
-Is 'return binary rdmol from input smiles with optional added 2D coords';
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text, Boolean, Boolean)
+Is 'return binary rdmol from input smiles with optional added 2D coords and name retained';
 
 -----------------------------------------------------------------------------------------------------
+Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text, add2d Boolean) Returns Bytea As $EOSQL$
+ Select _SCHEMA_.smiles_to_rdmol($1, add2d, false);
+$EOSQL$ Language Sql Immutable Returns Null On Null Input;
+Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text, Boolean)
+Is 'return binary rdmol from input smiles with optional 2D coords and no name retained';
+-----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.smiles_to_rdmol(smi Text) Returns Bytea As $EOSQL$
- Select _SCHEMA_.smiles_to_rdmol($1, false);
+ Select _SCHEMA_.smiles_to_rdmol($1, false, false);
 $EOSQL$ Language Sql Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smiles_to_rdmol(Text)
-Is 'return binary rdmol from input smiles';
+Is 'return binary rdmol from input smiles with no 2D coords and no name retained';
 
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.smarts_to_rdmol(sma Text, add2d Boolean) Returns Bytea As $EOPY$
@@ -284,7 +307,7 @@ if mol:
 else:
  plpy.warning("Error in input smarts")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smarts_to_rdmol(Text, Boolean)
 Is 'return binary rdmol from input smarts with optional added 2D coords';
 
@@ -326,7 +349,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.smarts(Bytea)
 Is 'return smarts from binary rdmol';
 
@@ -346,7 +369,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.matches(Bytea, Text)
 Is 'return true if input binary rdmol in arg#1 matches input smarts in arg#2';
 
@@ -370,7 +393,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.count_matches(Bytea, Text)
 Is 'return number of times input binary rdmol in arg#1 matches input smarts in arg#2';
 
@@ -401,7 +424,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.list_match(Bytea, Text, Integer, Integer)
 Is 'return array of atoms of input binary rdmol in arg#1 matching input smarts in arg#2. arg#3 indicates which match. arg#4 indicates index of first atom, typically 1 or 0';
 
@@ -449,7 +472,7 @@ if mol:
   else:
     return None
 
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.fp(Bytea, Integer)
 Is 'return flexibly-sized fingerprint of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
@@ -476,7 +499,7 @@ if mol:
   else:
     return None
 
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.fpbits(Bytea, Integer)
 Is 'return flexibly-sized fingerprint bits of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
@@ -528,7 +551,7 @@ if mol:
   else:
     return None
 
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.fpbits(Bytea)
 Is 'return fingerprint bits of input binary rdmol';
 
@@ -591,7 +614,7 @@ Comment On FUNCTION _SCHEMA_.contains(bit, bit)
 --
 --plpy.warning("Error parsing molfile "+molfil)
 --return None
---$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+--$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 --Comment On FUNCTION _SCHEMA_.molfile_mol(Text)
 --Is 'return mol data type containing canonical smiles, coords, canonical atom-ordering of input molfile';
 --
@@ -618,7 +641,7 @@ else:
  plpy.warning("Error parsing molfile")
  return [None]
 
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.molfile_properties(Text)
 Is 'return all named_property data type from input molfile containing name/value pairs';
 
@@ -635,7 +658,7 @@ else:
  plpy.warning("Error parsing molfile")
  return None
 
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.molfile_property(Text,Text)
 Is 'return value of named property from input molfile containing name/value pairs';
 
@@ -649,7 +672,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.graph(Bytea)
 Is 'return graph of input smiles, i.e. atom symbols and connectivity with all bond orders set to one, followed by H atom count.  useful for comparing tautomers';
 
@@ -663,7 +686,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchi(Bytea)
 Is 'return inchi of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
@@ -676,7 +699,7 @@ if mol:
 else:
  plpy.error("Error in input rdmol")
  return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.inchikey(Bytea)
 Is 'return inchikey of input binary rdmol';
 -----------------------------------------------------------------------------------------------------
@@ -704,7 +727,7 @@ if len(mols) > 1:
 else:
    plpy.error("MCS needs two or more molecules")
    return None
-$EOPY$ Language plpythonu Immutable;
+$EOPY$ Language _PYLANG_ Immutable;
 Comment On FUNCTION _SCHEMA_.mcs(Bytea[], Integer)
 Is 'return maximal common substructure of input binary rdmols';
 -----------------------------------------------------------------------------------------------------
@@ -737,7 +760,7 @@ try:
   return xform[0]
 except:
   return None
-$EOPY$ Language plpythonu Immutable Returns Null On Null Input;
+$EOPY$ Language _PYLANG_ Immutable Returns Null On Null Input;
 Comment On FUNCTION _SCHEMA_.rmsd(Bytea, Bytea, Integer[], Integer[])
 Is 'return RMDS overlap of input binary rdmols using matching atom lists';
 
@@ -762,7 +785,7 @@ if mol:
   return rc.svg(mol, width=width, height=height, matchmol=mm, kekulize=kekulize, adjust=adjust, orient=orient, highlight=highlight)
 else:
   return None
-$EOPY$ Language plpythonu Immutable;
+$EOPY$ Language _PYLANG_ Immutable;
 Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean, Boolean)
 Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size, option orient, optional highlight';
 -----------------------------------------------------------------------------------------------------
