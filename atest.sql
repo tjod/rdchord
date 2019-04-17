@@ -21,5 +21,4 @@ With amol As (Select rd.smiles_to_rdmol('c1ccccc1C(=O)NC N‐methylbenzamide', f
 , rd.mcs(Array[rdmol, rd.rdmol('c1ccccc1')])
 , rd.molfile_to_smiles(rd.molfile(rdmol))
 , rd.molfile_property(rd.molfile(rdmol), '_Name')
-, rd.molfile(rdmol)
 From amol;
