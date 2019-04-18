@@ -1,24 +1,26 @@
-With amol As (Select rd.smiles_to_rdmol('c1ccccc1C(=O)NC N‐methylbenzamide', false, true) As rdmol) Select rd.version()
-, rd.cansmiles(rdmol)
-, rd.isosmiles(rdmol)
-, rd.keksmiles(rdmol)
-, rd.impsmiles(rdmol)
-, rd.graph(rdmol)
-, rd.inchi(rdmol)
-, rd.inchikey(rdmol)
-, rd.matches(rdmol, 'C=O')
-, rd.count_matches(rdmol, 'c')
-, rd.list_matches(rdmol, 'C[O,N]', 0)
-, length(rd.fp(rdmol))
-, oc.nbits_set(rd.fp(rdmol))
-, rd.fpbits(rdmol)
-, rd.smiles_to_symbols(rdmol)
-, rd.smiles_to_bonds(rdmol)
-, oc.glogp(rdmol)
-, oc.tpsa(rdmol)
-, oc.amw(rdmol)
-, oc.tanimoto(rd.fp(rdmol), rd.fp(rd.rdmol('c1ccccc1C=O')))
-, rd.mcs(Array[rdmol, rd.rdmol('c1ccccc1')])
-, rd.molfile_to_smiles(rd.molfile(rdmol))
-, rd.molfile_property(rd.molfile(rdmol), '_Name')
-From amol;
+Select rd.version();
+Create Temporary Table amol (rdmol) As Select rd.smiles_to_rdmol('c1ccccc1C(=O)NC N‐methylbenzamide', false, true);
+Select rd.cansmiles(rdmol) From amol;
+Select rd.isosmiles(rdmol) From amol;
+Select rd.keksmiles(rdmol) From amol;
+Select rd.impsmiles(rdmol) From amol;
+Select rd.graph(rdmol) From amol;
+Select rd.inchi(rdmol) From amol;
+Select rd.inchikey(rdmol) From amol;
+Select rd.matches(rdmol, 'C=O') From amol;
+Select rd.count_matches(rdmol, 'c') From amol;
+Select rd.list_matches(rdmol, 'C[O,N]', 0) From amol;
+Select length(rd.fp(rdmol)) From amol;
+Select oc.nbits_set(rd.fp(rdmol)) From amol;
+Select rd.fpbits(rdmol) From amol;
+Select rd.smiles_to_symbols(rdmol) From amol;
+Select rd.smiles_to_bonds(rdmol) From amol;
+Select oc.glogp(rdmol) From amol;
+Select oc.tpsa(rdmol) From amol;
+Select oc.amw(rdmol) From amol;
+Select oc.tanimoto(rd.fp(rdmol), rd.fp(rd.rdmol('c1ccccc1C=O'))) From amol;
+Select rd.mcs(Array[rdmol, rd.rdmol('c1ccccc1')]) From amol;
+Select left(rd.molfile(rdmol), 80) As "molfile top" From amol;
+Select rd.molfile_to_smiles(rd.molfile(rdmol)) From amol;
+Select rd.molfile_property(rd.molfile(rdmol), '_Name') From amol;
+Select left(rd.svg(rdmol, 200, 200), 80) As "svg top" From amol;
