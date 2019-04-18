@@ -108,7 +108,7 @@ class rdchord:
 	def add_2Dcoords(self,m):
 		"""add computed 2D coords to input mol; return conformer number"""
 		from rdkit.Chem import rdDepictor
-		mcopy=Mol(m.ToBinary())
+		mcopy=Mol(m)
 		rdDepictor.Compute2DCoords(mcopy)
 		return mcopy
 
@@ -160,7 +160,7 @@ class rdchord:
 
 	def keksmiles(self,m):
 		"""make Kekule smiles from molecule"""
-		mcopy=Mol(m.ToBinary())
+		mcopy=Mol(m)
 		#mcopy=ROMol(m)
 		Kekulize(mcopy)
 		return MolToSmiles(mcopy, isomericSmiles=True, kekuleSmiles=True)
