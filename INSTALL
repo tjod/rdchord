@@ -1,4 +1,4 @@
-In order to use rdchord and the rdkit.* functions, you must already have the rdkit/python scripting language installed.
+In order to use rdchord and the rd.* functions, you must already have the rdkit/python scripting language installed.
 There is documentation about how to do this at http://rdkit.org/
 There may also be synatpics packages (Ubuntu/Debian) or rpm packages (Redhat/CentOS/Fedora/SuSE) to make rdkit installation easier.
 
@@ -22,7 +22,7 @@ PYTHONPATH =  '/home/tj/RDKit/rdkit-code'
 LD_LIBRARY_PATH = '/home/tj/RDKit/rdkit-code/lib'
 ^D
 
-Next, install the rdkit.* SQL functions into a (new) database (e.g. rdchord)
+Next, install the rd.* SQL functions into a (new) database (e.g. rdchord)
 You must also have the plpythonu language available in your installed postgres.
 There are synaptics and rpm packages for this,
 or if you compile postgres yourself, use the --with-python option.
@@ -36,9 +36,9 @@ $ sudo -u postgres bash installdb rdchord
 
 Now, you should be able to connect to rdchord or rdchord and do something like:
 $ psql rdchord
- select rdkit.cansmiles(rdkit.rdmol('c1ccccc1C(=O)NC'));
+ select rd.cansmiles(rd.rdmol('c1ccccc1C(=O)NC'));
 and get the result
-  rdchord=#  select rdkit.cansmiles(rdkit.rdmol('c1ccccc1C(=O)NC'));
+  rdchord=#  select rd.cansmiles(rd.rdmol('c1ccccc1C(=O)NC'));
      cansmiles    
  -----------------
   CNC(=O)c1ccccc1
