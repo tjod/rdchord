@@ -786,7 +786,7 @@ if mol:
 else:
   return None
 $EOPY$ Language _PYLANG_ Immutable;
-Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean, Boolean)
+Comment On FUNCTION _SCHEMA_.svg(Bytea, Integer, Integer, Bytea, Boolean, Boolean, Boolean, Boolean)
 Is 'return SVG drawing of input binary rdmol, optional Kekulize, optional adjust size, option orient, optional highlight';
 -----------------------------------------------------------------------------------------------------
 Create Or Replace Function _SCHEMA_.svg(rdmol Bytea, width integer, height integer) Returns Text As $EOPY$

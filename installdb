@@ -7,8 +7,8 @@ PORT=5432
 
 PSQL="$VERSION/bin/psql -p $PORT"
 #CREATELANG="$VERSION/bin/createlang -p $PORT"
-#PYLANG="plpython2u"
-PYLANG="plpython3u"
+PYLANG="plpython2u"
+#PYLANG="plpython3u"
 
 DB=$1
 if [ -z ${DB} ] ; then
