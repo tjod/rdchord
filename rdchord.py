@@ -9,17 +9,17 @@ class rdchord:
 		"""
 		# buffering smiles and smarts can eat up lots of memory,
 		#  but speeds things up considerably
-		#  certainly if an entire table can acutally fit
+		# certainly if an entire table can acutally fit
 		# but also if this is the maximum size of a hit list, say from match
 		if "RDKIT" not in Global: Global["RDKIT"] = dict()
 		self.GRD = Global["RDKIT"]
 		self.maxsmi = 1000
-		if "mol" not in Global: self.GRD["mol"] = dict()
+		if "mol" not in self.GRD: self.GRD["mol"] = dict()
 		self.mol = self.GRD["mol"]
 		# pick a reasonable number of smarts patterns you expect to use often,
 		# say 166 public keys or even 1000 fragment keys
 		self.maxsma = 1000
-		if "pat" not in Global: self.GRD["pat"] = dict()
+		if "pat" not in self.GRD: self.GRD["pat"] = dict()
 		self.pat = self.GRD["pat"]
 		try:
 			#from rdkit.Chem import MolToInchi,InchiToInchiKey
@@ -46,25 +46,30 @@ class rdchord:
 	def parse_smi(self,smi):
 		"""parse smiles and return Mol after storing in global dict
 			 or return from global dict"""
-		if smi in self.mol:
-			# return copy is slower, but safer?
-			#return Mol(self.mol[smi])
-			#plpy.notice('found mol for %s' % smi)
-			return self.mol[smi]
-
 		smiles_name = smi.split()
-		newmol = MolFromSmiles(smiles_name[0])
+		asmi = smiles_name[0]
+		if len(smiles_name) > 1:
+			aname = smiles_name[1]
+		else:
+			aname = None
+		if asmi in self.mol:
+			# return copy is slower, but safer?
+			#return Mol(self.mol[asmi])
+			#plpy.notice('found mol for %s' % asmi)
+			return self.mol[asmi]
+
+		newmol = MolFromSmiles(asmi)
 		if newmol:
 			if len(self.mol) < self.maxsmi:
-				#plpy.notice('new mol for %s' % smi)
+				#plpy.notice('new mol for %s' %asmi)
 				pass
 			else:
 				self.mol.popitem()
 				#key,psmi = self.mol.popitem()
 				#plpy.notice('mol reuse %s for %s' % (key,psmi))
-			self.mol[smi] = newmol
-			if len(smiles_name) > 1:
-                            newmol.SetProp("_Name", smiles_name[1])
+			self.mol[asmi] = newmol
+			if aname:
+				newmol.SetProp("_Name", aname)
 			return newmol
 		else:
 			return None
@@ -193,7 +198,7 @@ class rdchord:
 		#cansmi = self.cansmiles(em.GetMol())
 		cansmi = MolToSmiles(m, isomericSmiles=True)
 		#cansmi = cansmi.replace('+','').replace('-','').replace('[N]','N').replace('[O]','O').replace('[C]','C').replace('[I]','I').replace('[S]','S').replace('[P]','P').replace('[B]','B').replace('[Br]','Br').replace('[Cl]','Cl')
-		return "%s%s%d%+d" % (cansmi, ' H',  hcount, GetFormalCharge(m))
+		return "%s%s%d%+d" % (cansmi, ' H', hcount, GetFormalCharge(m))
 
 	def graph2(self,m):
 		from rdkit.Chem import EditableMol, RemoveHs, Atom, rdchem #, SanitizeMol, rdmolops
@@ -218,7 +223,7 @@ class rdchord:
 		#Chem.rdmolops.SanitizeFlags.SANITIZE_ADJUSTHS
 
 		cansmi = self.cansmiles(mol)
-		return "%s%s%d%+d" % (cansmi, ' H',  hcount, GetFormalCharge(m))
+		return "%s%s%d%+d" % (cansmi, ' H', hcount, GetFormalCharge(m))
 
 	def inchi(self,m):
 		"""make InChi from molecule"""
@@ -308,7 +313,7 @@ class rdchord:
 			# set pixels per Angstrom
 			xscale = (xmax-xmin) / 10.0
 			yscale = (ymax-ymin) / 10.0
-			iwidth =  int(max(minWidth,   width * xscale))
+			iwidth = int(max(minWidth,  width * xscale))
 			iheight = int(max(minHeight, height * yscale))
 		else:
 			iwidth = width
