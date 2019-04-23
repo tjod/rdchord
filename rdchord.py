@@ -292,7 +292,6 @@ class rdchord:
 	def svg(self, m, width=250, height=250, matchmol=None, kekulize=True, adjust=False, orient=False, highlight=False):
 		#from rdkit.Chem.rdmolfiles import SDMolSupplier
 		#from rdkit.Chem import rdDepictor
-		from rdkit.Chem import AllChem
 		#from rdkit.Chem import Kekulize
 		from rdkit.Chem.Draw import rdMolDraw2D
 
@@ -322,6 +321,16 @@ class rdchord:
 		mcopy = rdMolDraw2D.PrepareMolForDrawing(m, kekulize=False, wedgeBonds=True, addChiralHs=True)
 		matched_atoms=list(m.GetSubstructMatch(matchmol)) if matchmol else []
 		if len(matched_atoms) > 0 and orient:
+			from rdkit.Chem import AllChem
+			# first scale the matchmol so that a single bond is 1.5A:
+			# the following code is not general enough, so comment out
+# 			center = AllChem.ComputeCentroid(matchmol.GetConformer())
+# 			import numpy
+# 			tf = numpy.identity(4,numpy.float)
+# 			tf[0][3] -= center[0]
+# 			tf[1][3] -= center[1]
+# 			tf[0][0] = tf[1][1] = tf[2][2] = 1.5
+# 			AllChem.TransformMol(matchmol,tf)
 			AllChem.GenerateDepictionMatching2DStructure(mcopy, matchmol)
 		if kekulize: Kekulize(mcopy)
 		if len(matched_atoms) > 0 and highlight:
